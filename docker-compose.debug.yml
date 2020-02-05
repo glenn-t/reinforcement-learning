@@ -1,0 +1,10 @@
+version: '2.1'
+
+services:
+  reinforcement-learning:
+    image: reinforcement-learning
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
