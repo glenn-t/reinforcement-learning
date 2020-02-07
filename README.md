@@ -1,12 +1,15 @@
 # reinforcement-learning
 Based on Udemy course Reinforcement Learning with Python, linked [here](https://www.udemy.com/course/artificial-intelligence-reinforcement-learning-in-python/?LSNPUBID=Jbc0N5ZkDzk&ranEAID=Jbc0N5ZkDzk&ranMID=39197&ranSiteID=Jbc0N5ZkDzk-._h1PEob2obmKoVouzF9iQ)
 
-### Building the image
+### Building and running the programme
+For normal running:
 ```
-docker build . -t reinforcement-learning
-```
+docker-compose up
+````
 
-### Running the image
+If doing development, force source code refresh using:
 ```
-docker container run --publish 3000:3000 --rm --attach STDOUT reinforcement-learning
-```
+docker-compose up --build
+````
+
+Can also run use a volume for development. Just uncomment the section in `docker-compose.yml`

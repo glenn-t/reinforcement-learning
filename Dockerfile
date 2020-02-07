@@ -16,16 +16,9 @@ ADD requirements.txt /app
 
 # Using pip:
 RUN python3 -m pip install -r requirements.txt
-#CMD ["python3", "-m", "reinforcement-learning"]
+
 
 ADD *.py /app
 CMD ["python3", "main.py"]
 
-# Using pipenv:
-#RUN python3 -m pip install pipenv
-#RUN pipenv install --ignore-pipfile
-#CMD ["pipenv", "run", "python3", "-m", "reinforcement-learning"]
-
-# Using miniconda (make sure to replace 'myenv' w/ your environment name):
-#RUN conda env create -f environment.yml
-#CMD /bin/bash -c "source activate myenv && python3 -m reinforcement-learning"
+#CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
