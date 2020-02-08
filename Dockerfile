@@ -17,8 +17,7 @@ ADD requirements.txt /app
 # Using pip:
 RUN python3 -m pip install -r requirements.txt
 
-
 ADD *.py /app
-CMD ["python3", "main.py"]
+#CMD ["python3", "main.py"]
 
-#CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
