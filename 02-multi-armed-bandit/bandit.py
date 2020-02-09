@@ -1,9 +1,9 @@
 import numpy as np
 
 class Bandit:
-    def __init__(self, mu):
+    def __init__(self, mu,  upper_limit):
         self.mu = mu
-        self.mean = 0
+        self.mean = upper_limit
         self.N = 0
 
     def pull(self):
