@@ -3,8 +3,8 @@ version: '2.1'
 services:
   reinforcement-learning:
     image: reinforcement-learning
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     ports:
       - 3000:3000
+    volumes:
+      - ./output:/app/output
