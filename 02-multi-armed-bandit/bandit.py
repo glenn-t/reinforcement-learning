@@ -1,7 +1,7 @@
 import numpy as np
 
 class Bandit:
-    def __init__(self, mu,  upper_limit):
+    def __init__(self, mu):
         # Enviroment varialbes (not known to strategy)
         self.__mu__ = mu
 

@@ -10,7 +10,7 @@ def run_experiment(mu, eps, N):
     n_bandits = len(mu)
     bandits = list()
     for i in range(n_bandits):
-        bandits.append(bandit.Bandit(mu[i], upper_limit = 0))
+        bandits.append(bandit.Bandit(mu[i]))
     
     # Reward vector
     rewards = np.zeros(N)
