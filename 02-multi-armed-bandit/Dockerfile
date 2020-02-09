@@ -18,6 +18,6 @@ ADD ./requirements.txt /app
 RUN python3 -m pip install -r requirements.txt
 
 ADD *.py /app/
-CMD ["python3", "10-comparing-epsilons.py"]
+CMD ["python3", "10_comparing_epsilons.py"]
 
 # CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"

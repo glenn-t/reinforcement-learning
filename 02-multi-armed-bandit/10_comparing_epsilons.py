@@ -14,6 +14,9 @@ def run_experiment(mu, eps, N):
     
     # Reward vector
     rewards = np.zeros(N)
+    # Initialise bandit statistics
+    means = np.repeat(0.0, n_bandits)
+    bandit_N = np.repeat(0, n_bandits)
 
     # Run simulation
     for i in range(N):
@@ -22,14 +25,17 @@ def run_experiment(mu, eps, N):
         if np.logical_or(p < eps, i == 0):
             j = np.random.choice(n_bandits) 
         else:
-            ind_tried_bandits = np.array([b.N for b in bandits]) != 0
-            means = np.array([b.mean for b in bandits])
+            ind_tried_bandits = bandit_N > 0
             
             # Take the max of bandits who we tried
             j = np.argmax(means[ind_tried_bandits])
             j = np.where(ind_tried_bandits)[0][j]
             
         rewards[i] = bandits[j].pull()
+        # Update mean
+        bandit_N[j] = bandit_N[j] + 1
+        means[j] = (1-1.0/bandit_N[j] )*means[j] + 1.0/bandit_N[j]*rewards[i]
+    
     
        # print(j)
        # print([b.mean for b in bandits])

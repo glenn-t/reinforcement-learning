@@ -14,14 +14,17 @@ def run_experiment(mu, N):
     
     # Reward vector
     rewards = np.zeros(N)
+    # Initialise bandit statis
+    means = np.repeat(0.0, n_bandits)
+    bandit_N = np.repeat(0, n_bandits)
 
     # Run simulation
     for i in range(N):
-        means = np.array([b.mean for b in bandits])
-        # Add a small number to deal with the zero case
-        attempts = np.array([b.N for b in bandits]) + 0.1
-        j = np.argmax(means + np.sqrt(2*np.log(i + 1)/attempts))
+        j = np.argmax(means + np.sqrt(2*np.log(i + 1)/(bandit_N+0.1)))
         rewards[i] = bandits[j].pull()
+        # Update mean
+        bandit_N[j] = bandit_N[j] + 1
+        means[j] = (1-1.0/bandit_N[j] )*means[j] + 1.0/bandit_N[j]*rewards[i]
         # TODO Using an initial value of zero - how does this bias the method?
     
        # print(j)
@@ -38,7 +41,7 @@ def run_experiment(mu, N):
 for b in range(5):
     data = run_experiment(mu=[-1.0, 0.0, 1.0], N=100000)
     if(b == 0):
-        plt.plot(data, label='Optimistic Initial Values', alpha = 0.3, color = "red")
+        plt.plot(data, label='UCB1', alpha = 0.3, color = "red")
     else:
         plt.plot(data, alpha = 0.3, color = "red")
 plt.legend()
