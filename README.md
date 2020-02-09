@@ -12,4 +12,4 @@ If doing development, force source code refresh using:
 docker-compose up --build
 ````
 
-Can also run use a volume for development. Just uncomment the section in `docker-compose.yml`
+The image uses volumes to save analysis artifacts. These are saved to the `output` folder.
