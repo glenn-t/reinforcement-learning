@@ -104,3 +104,37 @@ class ucb1:
         j = self.last_action
         self.bandit_N[j] = self.bandit_N[j] + 1
         self.means[j] = (1-1.0/self.bandit_N[j])*self.means[j] + 1.0/self.bandit_N[j]*reward
+
+class bayesian:
+
+    def __init__(self, n_bandits):
+        self.n_bandits = n_bandits
+        self.means = np.repeat(0.0, n_bandits)
+        self.bandit_N = np.repeat(0, n_bandits)
+        self.last_action = None
+
+        # Bayesian parameters
+        # Tau is precison of data - assumed
+        # The smaller this is the lower the learning rate
+        self.tau = 1
+
+        # Set prior distribution - to be updated and will represent current posterior
+        self.m0 = np.repeat(0.0, n_bandits)
+        self.lambda0 = np.repeat(0.00001, n_bandits)
+
+    def choose_bandit(self):
+        posterior_samples = np.random.normal(loc = self.m0, scale = np.power(self.lambda0, -0.5))
+        j = np.argmax(posterior_samples)
+        self.last_action = j
+        return j
+
+    def update(self, reward):
+        j = self.last_action
+        self.bandit_N[j] = self.bandit_N[j] + 1
+        self.m0[j] = (self.m0[j]*self.lambda0[j] + self.tau*reward)/(self.lambda0[j] + self.tau)
+        self.lambda0[j] = self.lambda0[j] + self.tau
+        # print("m0")
+        # print(self.m0)
+        # print("lambda0")
+        # print(np.power(self.lambda0, -0.5))
+
