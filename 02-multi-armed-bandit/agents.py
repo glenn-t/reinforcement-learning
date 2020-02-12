@@ -106,6 +106,9 @@ class ucb1:
         self.means[j] = (1-1.0/self.bandit_N[j])*self.means[j] + 1.0/self.bandit_N[j]*reward
 
 class bayesian:
+    # Bayesian method uses Normal conjugate priors with known precision (tau) on likelihood.
+    # We choose the one with the highest random draw from each posterior
+    # Update posterior after each pull
 
     def __init__(self, n_bandits):
         self.n_bandits = n_bandits
