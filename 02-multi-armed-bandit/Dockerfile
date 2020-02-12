@@ -18,6 +18,18 @@ ADD ./requirements.txt /app
 RUN python3 -m pip install -r requirements.txt
 
 ADD *.py /app/
-CMD ["python3", "10_comparing_epsilons.py"]
+CMD ["python3", "main.py"]
 
 # CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+
+
+
+### Exploring options for running scripts as layers
+## Logic: If an earlier script is updated, 
+#    all subsequent scripts need to be updated
+#    Can't output to a volume
+#    Could have CMD simply copy generated outputs to disk!
+
+# RUN python3 10_comparing_epsilons.py
+# RUN python3 11_optimistic_initial_values.py
+# RUN python3 12_ucb1.py
