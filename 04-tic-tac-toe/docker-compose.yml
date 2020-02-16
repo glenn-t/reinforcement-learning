@@ -9,3 +9,4 @@ services:
     volumes:
       - ./output:/app/output
     stdin_open: true
+    tty: true

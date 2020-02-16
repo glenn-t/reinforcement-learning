@@ -19,3 +19,10 @@ For debug purposes, can try the following:
   1. Put breakpoints in code using pdb
   2. Build image: `docker build -t rl-02 .`
   3. Run container in interactive mode with volumes attached. `docker container run --interactive -v './output:/app/output' rl-02`
+
+Or the following also works, and might be easier:
+
+  1. Put breakpoints in code using pdb
+  2. Build and run image: `docker-compose up --build -d`
+  3. Find container name: `docker ps` or `docker container ls`
+  4. Attach to container: `docker attach [CONTAINER_NAME]`
