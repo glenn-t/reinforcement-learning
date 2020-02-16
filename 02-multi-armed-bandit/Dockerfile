@@ -8,7 +8,7 @@ FROM python:3.7.6
 # If you prefer miniconda:
 #FROM continuumio/miniconda3
 
-LABEL Name=reinforcement-learning Version=0.0.1
+LABEL Name=rl-02 Version=0.0.1
 EXPOSE 3000
 
 WORKDIR /app

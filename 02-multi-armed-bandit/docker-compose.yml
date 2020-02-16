@@ -1,10 +1,11 @@
 version: '2.1'
 
 services:
-  reinforcement-learning:
-    image: reinforcement-learning
+  python:
+    image: rl-02
     build: .
     ports:
       - 3000:3000
     volumes:
       - ./output:/app/output
+    stdin_open: true
