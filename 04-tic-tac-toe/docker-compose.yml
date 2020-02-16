@@ -1,0 +1,11 @@
+version: '2.1'
+
+services:
+  python:
+    image: rl-04
+    build: .
+    ports:
+      - 3000:3000
+    volumes:
+      - ./output:/app/output
+    stdin_open: true
