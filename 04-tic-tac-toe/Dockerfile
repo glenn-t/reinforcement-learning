@@ -1,24 +1,16 @@
-# Python support can be specified down to the minor or micro version
-# (e.g. 3.6 or 3.6.3).
-# OS Support also exists for jessie & stretch (slim and full).
-# See https://hub.docker.com/r/library/python/ for all supported Python
-# tags from Docker Hub.
-FROM python:3.7.6
-
-# If you prefer miniconda:
-#FROM continuumio/miniconda3
+# FROM rocker/tidyverse:3.6.2
+FROM rocker/r-ver:3.6.2
 
 LABEL Name=rl-04 Version=0.0.1
-EXPOSE 3000
 
 WORKDIR /app
-ADD ./requirements.txt /app
 
-# Using pip:
-RUN python3 -m pip install -r requirements.txt
+# Set up requirements
+ADD ./requirements.R /app
+RUN Rscript requirements.R
 
-ADD *.py /app/
-CMD ["python3", "main.py"]
+ADD *.R /app/
+CMD ["Rscript", "main.R"]
 
 # CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
 
