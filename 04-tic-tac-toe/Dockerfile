@@ -10,7 +10,8 @@ ADD ./requirements.R /app
 RUN Rscript requirements.R
 
 ADD *.R /app/
-CMD ["Rscript", "main.R"]
+ADD ./R/* /app/R/
+CMD ["R", "-f main.R"]
 
 # CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
 
