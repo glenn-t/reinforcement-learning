@@ -11,7 +11,7 @@ RUN Rscript requirements.R
 
 ADD *.R /app/
 ADD ./R/* /app/R/
-CMD ["R", "-f main.R"]
+CMD ["Rscript", "main.R"]
 
 # CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
 

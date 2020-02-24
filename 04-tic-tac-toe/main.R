@@ -1,6 +1,8 @@
 library(dplyr)
 # Source all functions
-lapply(list.files("R", full.names = TRUE), source)
+for(f in list.files("R", full.names = TRUE)) {
+  source(f)
+}
 
 # Generate all states
 all_states = get_all_states_and_winner()
@@ -11,13 +13,13 @@ all_states = get_all_states_and_winner()
 # play_game(list(human, human), draw = TRUE, all_states)
 # 
 # # Random vs Random
-# agent_random = new_agent_random()
-# draw_board(1:9, instructions = TRUE)
-# play_game(list(agent_random, agent_random), draw = TRUE, all_states)
+agent_random = new_agent_random()
+draw_board(1:9, instructions = TRUE)
+play_game(list(agent_random, agent_random), draw = TRUE, all_states)
 
 # Human vs agent
-agent_random = new_agent_random()
-human = new_human()
-draw_board(1:9, instructions = TRUE)
-play_game(list(agent_random, human), draw = TRUE, all_states)
+# agent_random = new_agent_random()
+# human = new_human()
+# draw_board(1:9, instructions = TRUE)
+# play_game(list(agent_random, human), draw = TRUE, all_states)
 

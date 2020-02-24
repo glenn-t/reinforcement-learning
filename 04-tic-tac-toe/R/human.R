@@ -5,12 +5,17 @@ new_human = function() {
       available_actions = which(board == 0)
       valid_result = FALSE
       while(!valid_result) {
-        action = readline("Select position (1-9): ") %>%
-          as.integer()
+        if(interactive()) {
+          action = readline("Select position (1-9): ")
+        } else { # Need this to work in docker
+          cat("Select position (1-9): ")
+          action = readLines("stdin", n = 1)
+        }
+        action = as.integer(action)
           if(action %in% available_actions) {
             valid_result = TRUE
           } else {
-            cat("\nPlease enter a valid action")
+            cat("\nPlease enter a valid action\n")
           }
         }
       return(action)
