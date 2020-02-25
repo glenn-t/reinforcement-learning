@@ -10,9 +10,13 @@ play_game = function(agent_list, draw = FALSE, all_states) {
   
   symbols = c("cross" = 1, "nought" = 2)
   
+  state_history = rep("", 9)
+  round = 0
+  
   # Play game
   current_player_index = c(TRUE, FALSE)
   while(is.na(winner)) {
+    round = round + 1
     if(draw) {
       draw_board(board)
     }
@@ -24,13 +28,15 @@ play_game = function(agent_list, draw = FALSE, all_states) {
     
     # Switch current player
     current_player_index = !current_player_index
+    # Save state history
+    state_history[round] = paste0(board, collapse = "")
   }
   # Final drawing of board
   if(draw) {
     draw_board(board)
   }
   
-  # Return winner
+  # Calculate winner
   if(draw) {
     if(winner == 0) {
       cat("Draw\n")
@@ -41,7 +47,10 @@ play_game = function(agent_list, draw = FALSE, all_states) {
     }
   }
   
-  return(winner)
+  # Trim state history
+  state_history = state_history[1:round]
+  
+  return(list("winner" = winner, "state_history" = state_history))
   
 }
 

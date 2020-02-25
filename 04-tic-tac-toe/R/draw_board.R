@@ -16,3 +16,6 @@ draw_board = function(board, instructions = FALSE) {
   cat("---------\n\n")
 }
 
+draw_instructions = function() {
+  draw_board(1:9, instructions = TRUE)
+}

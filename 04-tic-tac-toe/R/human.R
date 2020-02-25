@@ -1,6 +1,7 @@
 # Creates a human agent
 new_human = function() {
-  list(
+  
+  out = list(
     "choose_action" = function(self, board) {
       available_actions = which(board == 0)
       valid_result = FALSE
@@ -11,7 +12,7 @@ new_human = function() {
           cat("Select position (1-9): ")
           action = readLines("stdin", n = 1)
         }
-        action = as.integer(action)
+        action = suppressWarnings(as.integer(action))
           if(action %in% available_actions) {
             valid_result = TRUE
           } else {
@@ -21,4 +22,7 @@ new_human = function() {
       return(action)
     }
   )
+  
+  class(out) = "agent"
+  return(out)
 }

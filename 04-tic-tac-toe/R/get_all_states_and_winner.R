@@ -66,5 +66,17 @@ get_all_states_and_winner = function() {
     )
     
   }
+  
+  # Remove impossible states
+  all_states_mat = as.matrix(select(all_states, x1:x9))
+  # Replace circle with -1
+  all_states_mat[all_states_mat == 2] = -1
+  row_sums = rowSums(all_states_mat)
+  # Sum will be zero if equal number of circle and cross
+  # Sum will be 1 if cross has played another move
+  # Since cross always starts, circle cannot be ahead 1 move.
+  possible = row_sums %in% c(0, 1)
+  all_states = all_states[possible, ]
+  
   return(all_states)
 }
