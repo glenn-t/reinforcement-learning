@@ -5,7 +5,7 @@ draw_board = function(board, instructions = FALSE) {
   symbols[board == 2] = "o "
   
   if(instructions) {
-    symbols = paste0(1:9, " ")
+    symbols = paste0(c(7:9, 4:6, 1:3), " ")
   }
   
   cat("\n")
