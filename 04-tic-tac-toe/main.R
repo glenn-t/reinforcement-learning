@@ -89,11 +89,18 @@ out = train_agents(5, human, agent_p2, draw = TRUE)
 agent_p2 = out$p2
 
 print("Training fresh agents against each other")
+N = 5000
 agent_p1 = new_agent_01(all_states, symbol = 1, alpha = 0.5, eps = 100)
 agent_p2 = new_agent_01(all_states, symbol = 2, alpha = 0.5, eps = 100)
-out = train_agents(20000, agent_p1, agent_p2)
+out = train_agents(N, agent_p1, agent_p2)
 agent_p1 = out$p1
 agent_p2 = out$p2
+
+out = train_agents(N, agent_random, agent_p2)
+agent_p2 = out$p2
+
+out = train_agents(N, agent_p1, agent_random)
+agent_p1 = out$p1
 
 # And again
 cat("\nagent_p1 against random\n")
@@ -108,6 +115,14 @@ print(test_agents(1000, agent_p1, agent_p2))
 # Train it yourself!
 print("Your turn - play 5 games and see if it gets better")
 draw_instructions()
-out = train_agents(10, human, agent_p2, draw = TRUE)
+out = train_agents(5, human, agent_p2, draw = TRUE)
 # agent_p1 = out$p1
 agent_p2 = out$p2
+
+
+
+
+# Human trained
+agent_p1h = new_agent_01(all_states, symbol = 1, alpha = 0.9, eps = 1)
+out = train_agents(50, agent_p1h, human, draw = TRUE)
+agent_p1h = out$p1
