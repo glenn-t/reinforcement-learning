@@ -134,9 +134,9 @@ out = train_agents(10, agent_p1h, human, draw = TRUE)
 agent_p1h = out$p1
 
 # Inspect value function
-agent_p1h$value_function %>% left_join(all_states) %>% filter(value != 0.5 & !is_ended) %>% 
-  mutate(
-    first_game = (x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9) == 1 
-    ) %>%
+agent_p1h$value_function %>% 
+  left_join(all_states) %>% 
+  filter(value != 0.5 & !is_ended) %>% 
+  mutate(first_game = (x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9) == 1) %>%
   filter(first_game) %>%
-arrange(value) 
+  arrange(value) 
