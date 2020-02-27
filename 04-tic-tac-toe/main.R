@@ -29,7 +29,7 @@ agent_p1 = new_agent_01(all_states, symbol = 1, eps = 100, alpha = 0.99)
 agent_p2 = new_agent_01(all_states, symbol = 2, eps = 1, alpha = 0.5)
 
 test_agents = function(N, p1, p2) {
-  winner = replicate(1000, {
+  winner = replicate(N, {
     play_game(list(p1, p2), draw = FALSE, all_states)$winner
   })
   return(table(winner))

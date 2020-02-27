@@ -8,7 +8,8 @@ new_agent_01 = function(
   initial = 0,
   eps = 1,
   alpha = 0.5,
-  eps_decay = TRUE) {
+  eps_decay = TRUE,
+  print = FALSE) {
   
   
   # all_states has a column winner.
@@ -84,12 +85,20 @@ new_agent_01 = function(
     # Update values
     n_states = length(state_history)
     for(i in (n_states - 1):1) {
-      values[i] = values[i] + alpha*(values[i+1] - values[i])
+      values[i] = values[i] + self$alpha*(values[i+1] - values[i])
     }
-    
     # Load back into self
     self$value_function$value[ind] = values
     self$n_updates = self$n_updates + 1
+    if(print) {
+      # Print state of first move
+      self$value_function %>% 
+        left_join(all_states) %>% 
+        mutate(first_game = (x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9) == 1) %>%
+        filter(first_game) %>%
+        print()
+      print(values)
+    }
     return(self)
   }
   
@@ -100,6 +109,7 @@ new_agent_01 = function(
     "value_function" = value_function,
     "eps" = eps,
     "eps_decay" = eps_decay,
+    "alpha" = alpha,
     "n_updates" = 0)
   class(out) = c("updatable_agent", "agent")
   return(out)
