@@ -59,7 +59,7 @@ print("Your turn - play 5 games and see if it gets better")
 draw_instructions()
 out = train_agents(5, human, agent_p2, draw = TRUE); agent_p2 = out$p2
 print("Switch sides - play as circle")
-out = train_agents(5, agent_p2, human, draw = TRUE); agent_p2 = out$p2
+out = train_agents(5, agent_p1, human, draw = TRUE); agent_p1 = out$p1
 
 # Inspect value function of first turn
 print("Value function for first turn")
