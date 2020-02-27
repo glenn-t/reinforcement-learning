@@ -7,26 +7,18 @@ for(f in list.files("R", full.names = TRUE)) {
 # Generate all states
 all_states = get_all_states_and_winner()
 
-# # Human vs human
-# human = new_human()
-# draw_board(1:9, instructions = TRUE)
-# play_game(list(human, human), draw = TRUE, all_states)
-# 
-
-# Human vs agent
-# agent_random = new_agent_random()
-# human = new_human()
-# draw_board(1:9, instructions = TRUE)
-# play_game(list(intelligent_agent, human), draw = TRUE, all_states)
-
-
 #### Train an agent against random agent
 
 # Set up agents
 human = new_human()
 agent_random = new_agent_random()
-agent_p1 = new_agent_01(all_states, symbol = 1, eps = 100, alpha = 0.99)
-agent_p2 = new_agent_01(all_states, symbol = 2, eps = 1, alpha = 0.5)
+
+# Fun things to try
+# Agents learn faster and explore more with optimistic initial values (e.g 0.9)
+# Interesting to try to make them lose, or prefer to lose than draw
+
+agent_p1 = new_agent_01(all_states, symbol = 1, eps = 0, alpha = 0.5, loss_reward = -1, win_reward = 1, draw_reward = 0, initial = 0.9)
+agent_p2 = new_agent_01(all_states, symbol = 2, eps = 0, alpha = 0.5, loss_reward = -1, win_reward = 1, draw_reward = 0, initial = 0.9)
 
 test_agents = function(N, p1, p2) {
   winner = replicate(N, {
@@ -35,16 +27,22 @@ test_agents = function(N, p1, p2) {
   return(table(winner))
 }
 
+# Train against each other
+out = train_agents(7000, agent_p1, agent_p2)
+agent_p1 = out$p1
+agent_p2 = out$p2
+
 # Train p1
-out = train_agents(1500, agent_p1, agent_random)
+out = train_agents(5000, agent_p1, agent_random)
 agent_p1 = out$p1
 
 # Train p2
-out = train_agents(1500, agent_random, agent_p2)
+out = train_agents(22000, agent_random, agent_p2)
 agent_p2 = out$p2
 
+
 # Train against each other
-out = train_agents(1000, agent_p1, agent_p2)
+out = train_agents(5000, agent_p1, agent_p2)
 agent_p1 = out$p1
 agent_p2 = out$p2
 
@@ -76,7 +74,7 @@ print(test_agents(1000, agent_p1, agent_p2))
 
 # Now play against human or watch a game
 print("Agent vs agent game")
-play_game(list(agent_p1, agent_p2), draw = TRUE, all_states)
+play_game(list(human, agent_p2), draw = TRUE, all_states)
 
 # print("Your turn")
 # draw_instructions()
@@ -89,7 +87,7 @@ play_game(list(agent_p1, agent_p2), draw = TRUE, all_states)
 # Train it yourself!
 print("Your turn - play 5 games and see if it gets better")
 draw_instructions()
-out = train_agents(1, human, agent_p2, draw = TRUE)
+out = train_agents(5, agent_p1, human, draw = TRUE)
 # agent_p1 = out$p1
 agent_p2 = out$p2
 
