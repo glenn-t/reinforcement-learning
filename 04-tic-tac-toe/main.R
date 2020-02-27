@@ -17,8 +17,8 @@ agent_random = new_agent_random()
 # Agents learn faster and explore more with optimistic initial values (e.g 0.9)
 # Interesting to try to make them lose, or prefer to lose than draw
 
-agent_p1 = new_agent_01(all_states, symbol = 1, eps = 0, alpha = 0.5, loss_reward = -1, win_reward = 1, draw_reward = 0, initial = 0.9)
-agent_p2 = new_agent_01(all_states, symbol = 2, eps = 0, alpha = 0.5, loss_reward = -1, win_reward = 1, draw_reward = 0, initial = 0.9)
+agent_p1 = new_agent_01(all_states, symbol = 1, eps = 2, alpha = 0.5, initial = 0.9)
+agent_p2 = new_agent_01(all_states, symbol = 2, eps = 2, alpha = 0.5, initial = 0.9)
 
 test_agents = function(N, p1, p2) {
   winner = replicate(N, {
@@ -27,24 +27,18 @@ test_agents = function(N, p1, p2) {
   return(table(winner))
 }
 
-# Train against each other
-out = train_agents(7000, agent_p1, agent_p2)
+# Train against each other - # 7000 is maximum larning for this alpha=0.5
+out = train_agents(2000, agent_p1, agent_p2)
 agent_p1 = out$p1
 agent_p2 = out$p2
 
-# Train p1
-out = train_agents(5000, agent_p1, agent_random)
-agent_p1 = out$p1
-
-# Train p2
-out = train_agents(22000, agent_random, agent_p2)
-agent_p2 = out$p2
-
-
-# Train against each other
-out = train_agents(5000, agent_p1, agent_p2)
-agent_p1 = out$p1
-agent_p2 = out$p2
+# # Train p1
+# out = train_agents(5000, agent_p1, agent_random)
+# agent_p1 = out$p1
+# 
+# # Train p2
+# out = train_agents(22000, agent_random, agent_p2)
+# agent_p2 = out$p2
 
 # Get average win rate against other agent
 cat("\nagent_p1 against random\n")
@@ -56,85 +50,23 @@ print(test_agents(1000, agent_random, agent_p2))
 cat("\nagent_p1 against agent_p2\n")
 print(test_agents(1000, agent_p1, agent_p2))
 
-# # Learn against each other
-# out = train_agents(1, agent_p1, agent_p2)
-# agent_p1 = out$p1
-# agent_p2 = out$p2
-
-# And again
-cat("\nagent_p1 against random\n")
-print(test_agents(1000, agent_p1, agent_random))
-
-cat("\nrandom against agent_p2\n")
-print(test_agents(1000, agent_random, agent_p2))
-
-cat("\nagent_p1 against agent_p2\n")
-print(test_agents(1000, agent_p1, agent_p2))
-
-
 # Now play against human or watch a game
 print("Agent vs agent game")
-play_game(list(human, agent_p2), draw = TRUE, all_states)
-
-# print("Your turn")
-# draw_instructions()
-# play_game(list(human, agent_p2), draw = TRUE, all_states)
-# 
-# print("Your turn")
-# draw_instructions()
-# play_game(list(agent_p1, human), draw = TRUE, all_states)
+play_game(list(agent_p1, agent_p2), draw = TRUE, all_states)
 
 # Train it yourself!
 print("Your turn - play 5 games and see if it gets better")
 draw_instructions()
-out = train_agents(5, agent_p1, human, draw = TRUE)
-# agent_p1 = out$p1
-agent_p2 = out$p2
+out = train_agents(5, human, agent_p2, draw = TRUE); agent_p2 = out$p2
+print("Switch sides - play as circle")
+out = train_agents(5, agent_p2, human, draw = TRUE); agent_p2 = out$p2
 
-print("Training fresh agents against each other")
-N = 5000
-agent_p1 = new_agent_01(all_states, symbol = 1, alpha = 0.5, eps = 100)
-agent_p2 = new_agent_01(all_states, symbol = 2, alpha = 0.5, eps = 100)
-out = train_agents(N, agent_p1, agent_p2)
-agent_p1 = out$p1
-agent_p2 = out$p2
-
-out = train_agents(N, agent_random, agent_p2)
-agent_p2 = out$p2
-
-out = train_agents(N, agent_p1, agent_random)
-agent_p1 = out$p1
-
-# And again
-cat("\nagent_p1 against random\n")
-print(test_agents(1000, agent_p1, agent_random))
-
-cat("\nrandom against random\n")
-print(test_agents(1000, agent_random, agent_p2))
-
-cat("\nagent_p1 against agent_p2\n")
-print(test_agents(1000, agent_p1, agent_p2))
-
-# Train it yourself!
-print("Your turn - play 5 games and see if it gets better")
-draw_instructions()
-out = train_agents(5, human, agent_p2, draw = TRUE)
-# agent_p1 = out$p1
-agent_p2 = out$p2
-
-
-
-
-# Human trained
-# Agent1 learns well with alpha of 0.99 or 1, but agent2 doesn't.
-agent_p1h = new_agent_01(all_states, symbol = 1, alpha = 0.95, eps = 0, initial = 0.5)
-out = train_agents(10, agent_p1h, human, draw = TRUE)
-agent_p1h = out$p1
-
-# Inspect value function
-agent_p1h$value_function %>% 
+# Inspect value function of first turn
+print("Value function for first turn")
+agent_p1$value_function %>% 
   left_join(all_states) %>% 
   filter(value != 0.5 & !is_ended) %>% 
   mutate(first_game = (x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9) == 1) %>%
   filter(first_game) %>%
-  arrange(value) 
+  arrange(value) %>%
+  print()
