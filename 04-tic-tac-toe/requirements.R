@@ -11,4 +11,5 @@
 # would need to install each manually, possible using sessionInfo() to help
 
 repos = "mran.microsoft.com/snapshot/2020-02-22"
-install.packages("dplyr", repos = "mran.microsoft.com/snapshot/2020-02-22")
+options("repos" = repos)
+install.packages("dplyr")
