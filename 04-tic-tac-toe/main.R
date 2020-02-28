@@ -17,8 +17,8 @@ agent_random = new_agent_random()
 # Agents learn faster and explore more with optimistic initial values (e.g 0.9)
 # Interesting to try to make them lose, or prefer to lose than draw
 
-agent_p1 = new_agent_01(all_states, symbol = 1, eps = 2, alpha = 0.5, initial = 0.9)
-agent_p2 = new_agent_01(all_states, symbol = 2, eps = 2, alpha = 0.5, initial = 0.9)
+agent_p1 = new_agent_01(all_states, symbol = 1, eps = 3, alpha = 0.3, initial = 0.9)
+agent_p2 = new_agent_01(all_states, symbol = 2, eps = 3, alpha = 0.3, initial = 0.9)
 
 test_agents = function(N, p1, p2) {
   winner = replicate(N, {
@@ -56,10 +56,10 @@ play_game(list(agent_p1, agent_p2), draw = TRUE, all_states)
 
 # Train it yourself!
 print("Your turn - play 5 games and see if it gets better")
-draw_instructions()
-out = train_agents(5, human, agent_p2, draw = TRUE); agent_p2 = out$p2
-print("Switch sides - play as circle")
-out = train_agents(5, agent_p1, human, draw = TRUE); agent_p1 = out$p1
+# draw_instructions()
+# out = train_agents(5, human, agent_p2, draw = TRUE); agent_p2 = out$p2
+# print("Switch sides - play as circle")
+# out = train_agents(5, agent_p1, human, draw = TRUE); agent_p1 = out$p1
 
 # Inspect value function of first turn
 print("Value function for first turn")
