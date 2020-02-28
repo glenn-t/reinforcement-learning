@@ -12,4 +12,4 @@ RUN Rscript requirements.R
 ADD *.R /app/
 ADD ./R/* /app/R/
 CMD ["Rscript", "main.R"]
-#CMD ["R""]
+#CMD ["R"]
