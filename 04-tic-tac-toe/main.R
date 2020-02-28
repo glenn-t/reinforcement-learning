@@ -17,8 +17,8 @@ agent_random = new_agent_random()
 # Agents learn faster and explore more with optimistic initial values (e.g 0.9)
 # Interesting to try to make them lose, or prefer to lose than draw
 
-agent_p1 = new_agent_01(all_states, symbol = 1, eps = 3, alpha = 0.3, initial = 0.9)
-agent_p2 = new_agent_01(all_states, symbol = 2, eps = 3, alpha = 0.3, initial = 0.9)
+agent_p1 = new_agent_01(all_states, symbol = 1, eps = 3, alpha = 0.4, initial = 0.9)
+agent_p2 = new_agent_01(all_states, symbol = 2, eps = 3, alpha = 0.4, initial = 0.9)
 
 test_agents = function(N, p1, p2) {
   winner = replicate(N, {
