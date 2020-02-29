@@ -288,7 +288,7 @@ ls.score_history = as.list(rep(NA, length(epsilon)))
 
 for(i in seq_along(epsilon)) {
   # Train agent
-  p2 = new_agent_01(all_states = all_states, symbol = 2, alpha = alpha[i], alpha_decay = 0.99)
+  p2 = new_agent_01(all_states = all_states, symbol = 2, alpha = alpha[i], alpha_decay = 0.999)
   out = train_agents(N, agent_random, p2, print = FALSE)
   p2 = out$p2
   
@@ -343,3 +343,12 @@ p = ggplot(score_history, aes(x = iteration, y = cummean, colour = as.factor(alp
 p
 p + scale_x_log10()
 ```
+
+# Conclusions:
+
+  * Lower epsilon performs better (even zero). Zero had a variable performance though.
+  * Epsilon decay helps, as you can have a higher decay at the start.
+  * Alpha of 1 is terrible - no memory.
+  * Alpha (without decay) doesn't have a clear pattern, apart from very high alpha (>0.95) are bad.
+  * Alpha decay - too much decay prevents learning after a high number of games. Need to taylor it to the number of games or try a different decay function.
+
