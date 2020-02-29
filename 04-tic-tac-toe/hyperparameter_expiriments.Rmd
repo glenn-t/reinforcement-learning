@@ -29,7 +29,6 @@ N = 10000
 N_test = 1000
 # Set number of games to test the 'good' agent
 N_train_p1 = 10000
-
 # Helper function
 winner_to_score = function(winner, symbol = 2) {
   winner[winner == 2] = -1
@@ -215,7 +214,7 @@ alpha = c(0.2, 0.5, 0.8, 0.95, 0.99, 1)
 ls.metrics = as.list(rep(NA, length(epsilon)))
 ls.score_history = as.list(rep(NA, length(epsilon)))
 
-for(i in seq_along(epsilon)) {
+for(i in seq_along(alpha)) {
   # Train agent
   p2 = new_agent_01(all_states = all_states, symbol = 2, alpha = alpha[i])
   out = train_agents(N, agent_random, p2, print = FALSE)
@@ -286,7 +285,7 @@ alpha = c(0.2, 0.5, 0.8, 0.95, 0.99, 1)
 ls.metrics = as.list(rep(NA, length(epsilon)))
 ls.score_history = as.list(rep(NA, length(epsilon)))
 
-for(i in seq_along(epsilon)) {
+for(i in seq_along(alpha)) {
   # Train agent
   p2 = new_agent_01(all_states = all_states, symbol = 2, alpha = alpha[i], alpha_decay = 0.999)
   out = train_agents(N, agent_random, p2, print = FALSE)
@@ -351,4 +350,5 @@ p + scale_x_log10()
   * Alpha of 1 is terrible - no memory.
   * Alpha (without decay) doesn't have a clear pattern, apart from very high alpha (>0.95) are bad.
   * Alpha decay - too much decay prevents learning after a high number of games. Need to taylor it to the number of games or try a different decay function.
+  * There is a challenge of measuring performance. How do you make it objective and not dependant on the parameters of the opponent? Furthermore, if it does well against a bad opponent, what is that worth?
 
