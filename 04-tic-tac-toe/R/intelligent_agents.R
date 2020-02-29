@@ -8,7 +8,8 @@ new_agent_01 = function(
   initial = 0.9,
   eps = 1,
   alpha = 0.5,
-  eps_decay = TRUE,
+  eps_decay = TRUE, # becomes 1/n
+  alpha_decay = 1, # proportion of alpha
   print = FALSE) {
   
   
@@ -48,7 +49,7 @@ new_agent_01 = function(
     p = runif(1)
     if(p < eps) {
       # Explore
-      print("Random action")
+      #print("Random action")
       action_ind = sample(length(available_actions), size = 1)
       chosen_action = available_actions[action_ind]
     } else {
@@ -85,7 +86,7 @@ new_agent_01 = function(
     # Update values
     n_states = length(state_history)
     for(i in (n_states - 1):1) {
-      values[i] = values[i] + self$alpha*(values[i+1] - values[i])
+      values[i] = values[i] + self$alpha*(self$alpha_decay^(self$n_updates + 1))*(values[i+1] - values[i])
     }
     # Load back into self
     self$value_function$value[ind] = values
@@ -110,6 +111,7 @@ new_agent_01 = function(
     "eps" = eps,
     "eps_decay" = eps_decay,
     "alpha" = alpha,
+    "alpha_decay" = alpha_decay,
     "n_updates" = 0)
   class(out) = c("updatable_agent", "agent")
   return(out)

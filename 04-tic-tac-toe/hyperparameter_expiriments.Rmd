@@ -1,0 +1,345 @@
+---
+title: "Hyper-parameter expiriments"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Setup: load libraries and function.
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(DT)
+
+for(f in list.files("R", full.names = TRUE)) {
+  source(f)
+}
+
+# Setup random agent
+agent_random = new_agent_random()
+# Get all states
+all_states = get_all_states_and_winner()
+
+# Set number of games per expiriment
+N = 10000
+# Set number of test games
+N_test = 1000
+# Set number of games to test the 'good' agent
+N_train_p1 = 10000
+
+# Helper function
+winner_to_score = function(winner, symbol = 2) {
+  winner[winner == 2] = -1
+  if(symbol == 2) {
+    winner = -winner
+  }
+  return(winner)
+}
+```
+
+For testing, we will create a good player 1 agent.
+
+```{r}
+p1 = new_agent_01(all_states = all_states, symbol = 1, eps = 0, alpha = 0.8)
+# p2 = new_agent_01(all_states = all_states, symbol = 2, eps = 10, alpha = 0.2)
+# TODO increase later
+out = train_agents(N_train_p1, p1, agent_random, print = FALSE)
+p1 = out$p1
+# p2 = out$p2
+```
+
+Check if the trained player 1 agent is any good.
+
+```{r}
+p1$eps = 0 # Don't explore
+test_agents(N_test, p1, agent_random)
+```
+
+# Training against random agents
+
+## Impact of epsilon
+
+### No Decay
+
+```{r}
+# Create parameter grid
+epsilon = c(0, 0.001, 0.01, 0.1, 0.2, 0.5, 1)
+```
+
+```{r}
+ls.metrics = as.list(rep(NA, length(epsilon)))
+ls.score_history = as.list(rep(NA, length(epsilon)))
+
+for(i in seq_along(epsilon)) {
+  # Train agent
+  p2 = new_agent_01(all_states = all_states, symbol = 2, eps = epsilon[i], eps_decay = FALSE, alpha = 0.5)
+  out = train_agents(N, agent_random, p2, print = FALSE)
+  p2 = out$p2
+  
+  # Convert winner to score
+  score = tibble(
+    "iteration" = 1:N,
+    "epsilon" = epsilon[i], 
+    "score" = winner_to_score(out$winner)) %>%
+    mutate(cummean = cummean(score))
+  ls.score_history[[i]] = score
+  
+  ## Create key metrics
+  metrics = tibble(
+    "epsilon" = epsilon[i],
+    "metric" = c("mean_score_training", "average_score_test_random", "average_score_test_intelligent"),
+    "score" = c(
+      mean(score$score),
+      test_agents(N_test, p1 = agent_random, p2 = p2, table = FALSE) %>%
+        winner_to_score() %>%
+        mean(),
+      test_agents(1, p1 = p1, p2 = p2, table = FALSE) %>%
+        winner_to_score() %>%
+        mean()
+    )
+  )
+  
+  ls.metrics[[i]] = metrics
+}
+```
+
+View performance metrics
+
+```{r}
+metrics = bind_rows(ls.metrics)
+score_history = bind_rows(ls.score_history)
+metrics %>% arrange(desc(score)) %>% DT::datatable()
+```
+
+```{r}
+# Metric plot plot
+ggplot(metrics, aes(x = epsilon, y = score, colour = metric)) +
+  geom_line() + 
+  geom_point()
+```
+
+```{r}
+# Training plot
+p = ggplot(score_history, aes(x = iteration, y = cummean, colour = as.factor(epsilon))) +
+  geom_line() + 
+  labs(color = "epsilon")
+
+p
+p + scale_x_log10()
+```
+
+## Impact of epsilon
+
+### With decay
+
+```{r}
+# Create parameter grid
+epsilon = c(0, 1, 2, 5, 10, 100)
+```
+
+```{r}
+ls.metrics = as.list(rep(NA, length(epsilon)))
+ls.score_history = as.list(rep(NA, length(epsilon)))
+
+for(i in seq_along(epsilon)) {
+  # Train agent
+  p2 = new_agent_01(all_states = all_states, symbol = 2, eps = epsilon[i], eps_decay = TRUE, alpha = 0.5)
+  out = train_agents(N, agent_random, p2, print = FALSE)
+  p2 = out$p2
+  
+  # Convert winner to score
+  score = tibble(
+    "iteration" = 1:N,
+    "epsilon" = epsilon[i], 
+    "score" = winner_to_score(out$winner)) %>%
+    mutate(cummean = cummean(score))
+  ls.score_history[[i]] = score
+  
+  ## Create key metrics
+  metrics = tibble(
+    "epsilon" = epsilon[i],
+    "metric" = c("mean_score_training", "average_score_test_random", "average_score_test_intelligent"),
+    "score" = c(
+      mean(score$score),
+      test_agents(N_test, p1 = agent_random, p2 = p2, table = FALSE) %>%
+        winner_to_score() %>%
+        mean(),
+      test_agents(1, p1 = p1, p2 = p2, table = FALSE) %>%
+        winner_to_score() %>%
+        mean()
+    )
+  )
+  
+  ls.metrics[[i]] = metrics
+}
+```
+
+View performance metrics
+
+```{r}
+metrics = bind_rows(ls.metrics)
+score_history = bind_rows(ls.score_history)
+metrics %>% arrange(desc(score)) %>% DT::datatable()
+```
+
+```{r}
+# Metric plot plot
+ggplot(metrics, aes(x = epsilon, y = score, colour = metric)) +
+  geom_line() + 
+  geom_point()
+```
+
+```{r}
+# Training plot
+p = ggplot(score_history, aes(x = iteration, y = cummean, colour = as.factor(epsilon))) +
+  geom_line() + 
+  labs(color = "epsilon")
+
+p
+p + scale_x_log10()
+```
+
+## Impact of alpha (learning rate)
+
+### No Decay
+
+```{r}
+# Create parameter grid
+alpha = c(0.2, 0.5, 0.8, 0.95, 0.99, 1)
+```
+
+```{r}
+ls.metrics = as.list(rep(NA, length(epsilon)))
+ls.score_history = as.list(rep(NA, length(epsilon)))
+
+for(i in seq_along(epsilon)) {
+  # Train agent
+  p2 = new_agent_01(all_states = all_states, symbol = 2, alpha = alpha[i])
+  out = train_agents(N, agent_random, p2, print = FALSE)
+  p2 = out$p2
+  
+  # Convert winner to score
+  score = tibble(
+    "iteration" = 1:N,
+    "alpha" = alpha[i], 
+    "score" = winner_to_score(out$winner)) %>%
+    mutate(cummean = cummean(score))
+  ls.score_history[[i]] = score
+  
+  ## Create key metrics
+  metrics = tibble(
+    "alpha" = alpha[i],
+    "metric" = c("mean_score_training", "average_score_test_random", "average_score_test_intelligent"),
+    "score" = c(
+      mean(score$score),
+      test_agents(N_test, p1 = agent_random, p2 = p2, table = FALSE) %>%
+        winner_to_score() %>%
+        mean(),
+      test_agents(1, p1 = p1, p2 = p2, table = FALSE) %>%
+        winner_to_score() %>%
+        mean()
+    )
+  )
+  
+  ls.metrics[[i]] = metrics
+}
+```
+
+View performance metrics
+
+```{r}
+metrics = bind_rows(ls.metrics)
+score_history = bind_rows(ls.score_history)
+metrics %>% arrange(desc(score)) %>% DT::datatable()
+```
+
+```{r}
+# Metric plot plot
+ggplot(metrics, aes(x = alpha, y = score, colour = metric)) +
+  geom_line() + 
+  geom_point()
+```
+
+```{r}
+# Training plot
+p = ggplot(score_history, aes(x = iteration, y = cummean, colour = as.factor(alpha))) +
+  geom_line() + 
+  labs(color = "alpha")
+
+p
+p + scale_x_log10()
+```
+
+### With Alpha Decay
+
+We use a value of 0.999
+
+```{r}
+# Create parameter grid
+alpha = c(0.2, 0.5, 0.8, 0.95, 0.99, 1)
+```
+
+```{r}
+ls.metrics = as.list(rep(NA, length(epsilon)))
+ls.score_history = as.list(rep(NA, length(epsilon)))
+
+for(i in seq_along(epsilon)) {
+  # Train agent
+  p2 = new_agent_01(all_states = all_states, symbol = 2, alpha = alpha[i], alpha_decay = 0.99)
+  out = train_agents(N, agent_random, p2, print = FALSE)
+  p2 = out$p2
+  
+  # Convert winner to score
+  score = tibble(
+    "iteration" = 1:N,
+    "alpha" = alpha[i], 
+    "score" = winner_to_score(out$winner)) %>%
+    mutate(cummean = cummean(score))
+  ls.score_history[[i]] = score
+  
+  ## Create key metrics
+  metrics = tibble(
+    "alpha" = alpha[i],
+    "metric" = c("mean_score_training", "average_score_test_random", "average_score_test_intelligent"),
+    "score" = c(
+      mean(score$score),
+      test_agents(N_test, p1 = agent_random, p2 = p2, table = FALSE) %>%
+        winner_to_score() %>%
+        mean(),
+      test_agents(1, p1 = p1, p2 = p2, table = FALSE) %>%
+        winner_to_score() %>%
+        mean()
+    )
+  )
+  
+  ls.metrics[[i]] = metrics
+}
+```
+
+View performance metrics
+
+```{r}
+metrics = bind_rows(ls.metrics)
+score_history = bind_rows(ls.score_history)
+metrics %>% arrange(desc(score)) %>% DT::datatable()
+```
+
+```{r}
+# Metric plot plot
+ggplot(metrics, aes(x = alpha, y = score, colour = metric)) +
+  geom_line() + 
+  geom_point()
+```
+
+```{r}
+# Training plot
+p = ggplot(score_history, aes(x = iteration, y = cummean, colour = as.factor(alpha))) +
+  geom_line() + 
+  labs(color = "alpha")
+
+p
+p + scale_x_log10()
+```

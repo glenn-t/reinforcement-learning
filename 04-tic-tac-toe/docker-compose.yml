@@ -5,7 +5,7 @@ services:
     image: rl-04
     build: .
     ports:
-      - 8787:8787
+      - 8787:8787 # For rocker/tidyverse
     volumes:
       - ./output:/app/output
     stdin_open: true
