@@ -8,8 +8,8 @@ new_agent_01 = function(
   initial = 0.9,
   eps = 1,
   alpha = 0.5,
-  eps_decay = TRUE, # becomes 1/n
-  alpha_decay = 1, # proportion of alpha
+  eps_decay = TRUE, # becomes eps/n
+  alpha_decay = FALSE, # becomes alpha/n
   print = FALSE) {
   
   
@@ -85,8 +85,15 @@ new_agent_01 = function(
     
     # Update values
     n_states = length(state_history)
+    if(self$alpha_decay) {
+      alpha = self$alpha/(self$n_updates + 1)
+    } else {
+      alpha = self$alpha
+    }
+    
+    # From final state to first state
     for(i in (n_states - 1):1) {
-      values[i] = values[i] + self$alpha*(self$alpha_decay^(self$n_updates + 1))*(values[i+1] - values[i])
+      values[i] = values[i] + alpha*(values[i+1] - values[i])
     }
     # Load back into self
     self$value_function$value[ind] = values

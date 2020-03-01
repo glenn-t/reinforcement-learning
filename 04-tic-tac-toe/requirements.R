@@ -13,3 +13,6 @@
 repos = "mran.microsoft.com/snapshot/2020-02-22"
 options("repos" = repos)
 install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("rmarkdown")
+install.packages("DT")
