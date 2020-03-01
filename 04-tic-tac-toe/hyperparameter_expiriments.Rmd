@@ -212,7 +212,7 @@ p + scale_x_log10()
   * Lower epsilon performs better (even zero). Zero had a variable performance though.
   * Epsilon decay helps, as you can have a higher decay at the start.
   * Alpha of 1 is terrible - no memory.
-  * Alpha (without decay) doesn't have a clear pattern, apart from very high alpha (>0.95) are bad.
+  * Most alpha values work ok for this duration of training. Low alpha values don't seem to perform as well. Also, alpha=1/N is learning too slowly.
   * Alpha decay - too much decay prevents learning after a high number of games. Need to taylor it to the number of games or try a different decay function.
   * There is a challenge of measuring performance. How do you make it objective and not dependant on the parameters of the opponent? Furthermore, if it does well against a bad opponent, what is that worth?
 
