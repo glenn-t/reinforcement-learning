@@ -1,5 +1,5 @@
 ---
-title: "Hyper-parameter expiriments"
+title: "Hyper-parameter experiments"
 output: html_document
 ---
 
