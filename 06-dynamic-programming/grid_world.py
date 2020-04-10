@@ -115,11 +115,3 @@ def negative_grid(step_reward=-0.1):
     g = standard_grid()
     g.rewards = g.rewards + step_reward
     return(g)
-
-print(standard_grid().rewards)
-
-g = negative_grid()
-print(g.rewards)
-print(g.is_terminal((0, 3)))
-print(g.game_over())
-print(g.all_states())
