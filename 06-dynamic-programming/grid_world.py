@@ -54,8 +54,9 @@ class Grid:
     def current_state(self):
         return((self.i, self.j))
 
-    def is_terminal(self):
-        return(self.terminal_states[self.i, self.j])
+    def is_terminal(self, state):
+        """ State is (i, j) tuple"""
+        return(self.terminal_states[state[0], state[1]])
 
     def move(self, action):
         self.previous_i = self.i
@@ -77,12 +78,12 @@ class Grid:
             raise ValueError("Invalid action")
 
     def undo_move(self):
-        """Undos the most recent move"""
-        self.i = self.previous_j
+        """Undoes the most recent move"""
+        self.i = self.previous_i
         self.j = self.previous_j
 
     def game_over(self):
-        return(self.is_terminal())
+        return(self.is_terminal((self.i, self.j)))
 
     def all_states(self):
         """returns a list of all states except blocks"""
@@ -116,4 +117,9 @@ def negative_grid(step_reward=-0.1):
     return(g)
 
 print(standard_grid().rewards)
-print(negative_grid().rewards)
+
+g = negative_grid()
+print(g.rewards)
+print(g.is_terminal((0, 3)))
+print(g.game_over())
+print(g.all_states())
