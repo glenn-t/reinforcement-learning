@@ -23,7 +23,7 @@ class Grid:
         self.actions = {}
         for i in range(self.height):
             for j in range(self.width):
-                if(not blocks[i,j]):
+                if not (blocks[i, j] or terminal_states[i, j]):
                     key = (i, j)
                     a = np.array(["D", "U", "L", "R"])
                     # Check for walls
@@ -45,6 +45,7 @@ class Grid:
                     if ("R" in a) and blocks[i, j + 1]:
                         a = a[a != "R"]
                     self.actions[key] = a
+                    
 
     def set_state(self, state):
         # state is a tuple of i,j coords (e.g. (0, 1))
@@ -74,6 +75,8 @@ class Grid:
                 self.j = self.j + 1
             elif action == "U":
                 self.i = self.i - 1
+            # return reward
+            return(self.rewards[self.i, self.j])
         else:
             raise ValueError("Invalid action")
 
@@ -85,9 +88,16 @@ class Grid:
     def game_over(self):
         return(self.is_terminal((self.i, self.j)))
 
-    def all_states(self):
+    def all_states(self, include_terminal = False):
         """returns a list of all states except blocks"""
-        return(list(self.actions.keys()))
+        out = list(self.actions.keys())
+        # append the terminal states
+        for i in range(self.terminal_states.shape[0]):
+            for j in range(self.terminal_states.shape[1]):
+                if self.terminal_states[i,j]:
+                    out.append((i, j))
+
+        return(out)
 
 def standard_grid():
     "Returns standard grid game"
