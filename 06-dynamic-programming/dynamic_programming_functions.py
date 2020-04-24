@@ -1,0 +1,95 @@
+import numpy as np
+import pdb
+
+# interative_policy_evaluation
+# Finds value function of a given policy
+# Note, this may not converge if the policy creates loops that cannot reach
+# the terminal state. So need to include max_iter
+
+def get_value(policy, g, gamma = 0.9, tol = 1e-6, max_iter = 1000):
+    V = {}
+    for s in g.all_states(include_terminal=True):
+        V[s] = 0 # terminal states have 0 as value
+
+    not_small_enough = True
+    iteration = 0
+    while not_small_enough & (iteration < max_iter):
+        delta = 0
+        for state in V.keys():
+            old_V = V[state]
+            # V(s) only has value if it's not a terminal state
+            if state in g.actions:
+                # bellman equations
+                sum = 0
+                # loop though all posible actions
+                for i in range(len(policy[state])):
+                    prob = policy[state][i]
+                    if (prob > 0):
+                        g.set_state(state)
+                        #pdb.set_trace()
+                        reward = g.move(g.actions_array[i])
+                        sum += prob*(reward + gamma*V[g.current_state()])
+                V[state] = sum
+                delta = max(delta, np.abs(V[state] - old_V))
+        not_small_enough = delta > tol
+        iteration += 1
+    
+    if(iteration == max_iter):
+        print("Did not converge")
+    return(V)
+
+# Prints value function
+def print_value_function(V, g):
+    out = np.zeros((g.height, g.width))
+    for key, value in V.items():
+        out[key[0], key[1]] = value
+    print(np.round(out, 2))
+    return(out)
+
+def policy_iteration(g, gamma = 0.9, tol = 1e-6):
+    # Uses policy iteration algorithm to get optimal policy
+
+    # Set up random policy
+    policy = g.actions.copy()
+    for key, value in policy.items():
+        probs = np.zeros(len(g.actions_array))
+        value = np.random.choice(value)
+        probs[g.actions_array == value] = 1
+        policy[key] = probs
+
+    # Conduct policy iteration
+    policy_changed = True
+    while (policy_changed):
+        # print("Policy")
+        # print_determinisitic_policy(policy, g)
+        # print("\n")
+        policy_changed = False
+        # Get value function of current policy
+        V = get_value(policy, g, gamma = gamma, tol = tol)
+        # For each state, find the best action under the current value function
+        for s in g.all_states(include_terminal=False):
+            g.set_state(s)
+            old_a = g.actions_array[policy[s] == 1][0]
+            q = np.zeros(len(g.actions[s]))
+            # Work out q for each action
+            for i in range(len(g.actions[s])):
+                r = g.move(g.actions[s][i])
+                q[i] = r + gamma*V[g.current_state()]
+                g.undo_move()
+            # get actions that maximimse q
+            possible_a = g.actions[s][q == q.max()]
+            new_a = old_a if old_a in possible_a else possible_a[0]
+            # convert action into probability matrix
+            policy[s] = np.zeros(len(g.actions_array))
+            policy[s][g.actions_array == new_a] = 1
+            # check if policy has changed
+            policy_changed = policy_changed | (old_a != new_a)
+
+    return((V, policy))
+
+def print_determinisitic_policy(policy, g):
+    out = np.full(shape = (g.height, g.width), fill_value = " ")
+    for key, value in policy.items():
+        action = g.actions_array[value == value.max()][0]
+        out[key[0], key[1]] = action
+    print(out)

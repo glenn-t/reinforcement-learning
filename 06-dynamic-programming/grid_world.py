@@ -18,6 +18,7 @@ class Grid:
         self.rewards = rewards
         self.terminal_states = terminal_states
         self.blocks = blocks
+        self.actions_array = np.array(["U", "D", "L", "R"])
 
         # Create actions
         self.actions = {}
@@ -91,11 +92,12 @@ class Grid:
     def all_states(self, include_terminal = False):
         """returns a list of all states except blocks"""
         out = list(self.actions.keys())
-        # append the terminal states
-        for i in range(self.terminal_states.shape[0]):
-            for j in range(self.terminal_states.shape[1]):
-                if self.terminal_states[i,j]:
-                    out.append((i, j))
+        if(include_terminal):
+            # append the terminal states
+            for i in range(self.terminal_states.shape[0]):
+                for j in range(self.terminal_states.shape[1]):
+                    if self.terminal_states[i,j]:
+                        out.append((i, j))
 
         return(out)
 
@@ -123,5 +125,33 @@ def standard_grid():
 def negative_grid(step_reward=-0.1):
     "Returns grid game with negative step rewards"
     g = standard_grid()
+    g.rewards = g.rewards + step_reward
+    return(g)
+
+def big_grid():
+    "Returns big grid game"
+    width = 5
+    height = 5
+    blocks = np.zeros(shape = (height, width), dtype = bool)
+    blocks[1,1] = True
+    blocks[3,3] = True
+
+    rewards = np.zeros(shape = (height, width))
+    rewards[0, 4] = 1
+    rewards[1, 3] = -1
+
+    terminal_states = np.zeros(shape = (height, width), dtype = bool)
+    terminal_states[rewards != 0] = True
+
+    return Grid(
+        start=(0, 0),
+        blocks=blocks,
+        rewards=rewards,
+        terminal_states=terminal_states,
+    )
+
+def big_grid_negative(step_reward=-0.1):
+    "Returns big grid game with negative step rewards"
+    g = big_grid()
     g.rewards = g.rewards + step_reward
     return(g)
