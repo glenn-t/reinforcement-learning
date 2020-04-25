@@ -21,13 +21,21 @@ def get_value(policy, g, gamma = 0.9, tol = 1e-6, max_iter = 1000):
             if state in g.actions:
                 # bellman equations
                 sum = 0
+
+                # generate probabilities
+                p = policy[state]
+                # get probability if random action is taken due to wind
+                windy_prob = np.zeros(len(g.actions_array))
+                windy_prob[np.isin(g.actions_array, g.actions[state])] = 1/len(g.actions[state])
+                p = p*(1-g.windy) + windy_prob*g.windy
+
                 # loop though all posible actions
                 for i in range(len(policy[state])):
-                    prob = policy[state][i]
+                    prob = p[i]
                     if (prob > 0):
                         g.set_state(state)
                         #pdb.set_trace()
-                        reward = g.move(g.actions_array[i])
+                        reward = g.move(g.actions_array[i], force = True)
                         sum += prob*(reward + gamma*V[g.current_state()])
                 V[state] = sum
                 delta = max(delta, np.abs(V[state] - old_V))
@@ -68,14 +76,27 @@ def policy_iteration(g, gamma = 0.9, tol = 1e-6):
         V = get_value(policy, g, gamma = gamma, tol = tol)
         # For each state, find the best action under the current value function
         for s in g.all_states(include_terminal=False):
-            g.set_state(s)
             old_a = g.actions_array[policy[s] == 1][0]
             q = np.zeros(len(g.actions[s]))
+
+            # get probability if random action is taken due to wind
+            windy_prob = np.zeros(len(g.actions_array))
+            windy_prob[np.isin(g.actions_array, g.actions[s])] = 1/len(g.actions[s])
+
             # Work out q for each action
             for i in range(len(g.actions[s])):
-                r = g.move(g.actions[s][i])
-                q[i] = r + gamma*V[g.current_state()]
-                g.undo_move()
+                # work out transition probabilities for this action in this state
+                p = np.zeros(len(g.actions_array))
+                p[g.actions_array == g.actions[s][i]] = 1
+                p = p*(1-g.windy) + windy_prob*g.windy
+                
+                for j in range(len(p)):
+                    # loop through possible end states given the desired action
+                    if(p[j] != 0):
+                        # take action if possible
+                        g.set_state(s)
+                        r = g.move(g.actions_array[j] ,force = True)
+                        q[i] += p[j]*(r + gamma*V[g.current_state()])
             # get actions that maximimse q
             possible_a = g.actions[s][q == q.max()]
             new_a = old_a if old_a in possible_a else possible_a[0]

@@ -38,4 +38,6 @@ dp.print_value_function(dp.get_value(random_policy, g, gamma = 1), g)
 print("Fixed policy, gamma = 0.9")
 dp.print_value_function(dp.get_value(fixed_policy, g, gamma = 0.9), g)
 
-
+g.windy = 0.5
+print("Fixed policy, windy, gamma = 0.9")
+dp.print_value_function(dp.get_value(fixed_policy, g, gamma = 0.9), g)

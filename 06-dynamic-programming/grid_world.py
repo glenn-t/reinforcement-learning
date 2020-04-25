@@ -1,12 +1,13 @@
 import numpy as np
 
 class Grid:
-    def __init__(self, start, blocks, rewards, terminal_states):
+    def __init__(self, start, blocks, rewards, terminal_states, windy = 0):
         """
         start: tuple (i, j) start position
         blocks: numpy logical array of blocks
         rewards: numpy float array of rewards
         terminal_states: numpy logical array of terminal states
+        windy: probability of taking a random action
         """
         self.height = terminal_states.shape[0] # i
         self.width = terminal_states.shape[1] # j
@@ -14,6 +15,8 @@ class Grid:
         self.j = start[1]
         self.previous_i = np.nan
         self.previous_j = np.nan
+        
+        self.windy = windy
 
         self.rewards = rewards
         self.terminal_states = terminal_states
@@ -60,13 +63,19 @@ class Grid:
         """ State is (i, j) tuple"""
         return(self.terminal_states[state[0], state[1]])
 
-    def move(self, action):
+    def move(self, action, force = False):
         self.previous_i = self.i
         self.previous_j = self.j
         """
         action: either "U", "D", "L", "R"
+        force: if True, then ignore the wind and don't take a random action
         """
         if (action in self.actions[(self.i, self.j)]):
+            p = np.random.sample()
+            if (p < self.windy) and not force:
+                # Do random action
+                action = np.random.choice(self.actions[(self.i, self.j)])
+
             # Do action
             if action == "D":
                 self.i = self.i + 1
@@ -116,7 +125,7 @@ def standard_grid():
     terminal_states[0:2, 3] = True
 
     return Grid(
-        start=(0, 0),
+        start=(2, 0),
         blocks=blocks,
         rewards=rewards,
         terminal_states=terminal_states,
@@ -126,6 +135,12 @@ def negative_grid(step_reward=-0.1):
     "Returns grid game with negative step rewards"
     g = standard_grid()
     g.rewards = g.rewards + step_reward
+    return(g)
+    
+def windy_grid(step_reward = -0.1, windy = 0.5):
+    g = standard_grid()
+    g.rewards = g.rewards + step_reward
+    g.windy = 0.5
     return(g)
 
 def big_grid():
@@ -144,7 +159,7 @@ def big_grid():
     terminal_states[rewards != 0] = True
 
     return Grid(
-        start=(0, 0),
+        start=(4, 0),
         blocks=blocks,
         rewards=rewards,
         terminal_states=terminal_states,
