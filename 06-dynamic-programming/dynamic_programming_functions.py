@@ -114,3 +114,83 @@ def print_determinisitic_policy(policy, g):
         action = g.actions_array[value == value.max()][0]
         out[key[0], key[1]] = action
     print(out)
+
+def value_iteration(g, gamma = 0.9, tol = 1e-6, max_iter = 1000):
+    # Uses value iteration algorithm to get optimal policy
+
+    # Set up value function
+    V = {}
+    for s in g.all_states(include_terminal=True):
+        V[s] = 0 # terminal states have 0 as value
+
+    # Conduct value iteration
+    not_small_enough = True
+    iteration = 0
+    while not_small_enough & (iteration < max_iter):
+        delta = 0 
+
+        # For each state, find the best action under the current value function
+        for s in g.all_states(include_terminal=False):
+            old_v = V[s]
+            
+            # Initialise Q
+            q = np.zeros(len(g.actions[s]))
+
+            # get probability if random action is taken due to wind
+            windy_prob = np.zeros(len(g.actions_array))
+            windy_prob[np.isin(g.actions_array, g.actions[s])] = 1/len(g.actions[s])
+
+            # Work out q for each action
+            for i in range(len(g.actions[s])):
+                # work out transition probabilities for this action in this state
+                p = np.zeros(len(g.actions_array))
+                p[g.actions_array == g.actions[s][i]] = 1
+                p = p*(1-g.windy) + windy_prob*g.windy
+                
+                for j in range(len(p)):
+                    # loop through possible end states given the desired action
+                    if(p[j] != 0):
+                        # take action if possible
+                        g.set_state(s)
+                        r = g.move(g.actions_array[j] ,force = True)
+                        q[i] += p[j]*(r + gamma*V[g.current_state()])
+            # Update value function
+            V[s] = q.max()
+
+            # Check for convergence
+            delta = max(delta, np.abs(V[s] - old_v))
+        # End state loop - check for convergence
+        not_small_enough = delta > tol
+        iteration += 1
+
+    # Get optimal policy
+    policy = {}
+    for s in g.all_states(include_terminal=False):
+        q = np.zeros(len(g.actions[s]))
+
+        # get probability if random action is taken due to wind
+        windy_prob = np.zeros(len(g.actions_array))
+        windy_prob[np.isin(g.actions_array, g.actions[s])] = 1/len(g.actions[s])
+
+        # Work out q for each action
+        for i in range(len(g.actions[s])):
+            # work out transition probabilities for this action in this state
+            p = np.zeros(len(g.actions_array))
+            p[g.actions_array == g.actions[s][i]] = 1
+            p = p*(1-g.windy) + windy_prob*g.windy
+            
+            for j in range(len(p)):
+                # loop through possible end states given the desired action
+                if(p[j] != 0):
+                    # take action if possible
+                    g.set_state(s)
+                    r = g.move(g.actions_array[j] ,force = True)
+                    q[i] += p[j]*(r + gamma*V[g.current_state()])
+        # get actions that maximimse q
+        action = g.actions[s][q == q.max()][0]
+        # convert action into probability matrix
+        policy[s] = np.zeros(len(g.actions_array))
+        policy[s][g.actions_array == action] = 1
+
+
+    return((V, policy))

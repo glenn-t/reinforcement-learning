@@ -7,7 +7,7 @@ import dynamic_programming_functions as dp
 g = standard_grid()
 
 print("Standard grid, gamma = 0.9")
-V, policy = dp.policy_iteration(g, gamma = 0.9)
+V, policy = dp.value_iteration(g, gamma = 0.9)
 dp.print_value_function(V, g)
 dp.print_determinisitic_policy(policy, g)
 
