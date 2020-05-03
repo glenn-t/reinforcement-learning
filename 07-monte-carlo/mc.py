@@ -21,7 +21,7 @@ def print_determinisitic_policy(policy, g):
         out[key[0], key[1]] = action
     print(out)
 
-def get_value(g, policy, N = 100):
+def get_value(g, policy, N = 100, gamma = 0.9):
     # Gets the value function using monte carlo (using simulation)
     # (Policy evaluation)
     
@@ -35,7 +35,7 @@ def get_value(g, policy, N = 100):
         starting_state_ind = np.random.choice(len(possible_starting_states))
         g.set_state(possible_starting_states[starting_state_ind])
 
-        states, returns = g.play_game(policy)
+        states, returns = g.play_game(policy, gamma = gamma)
         # Use first visit MC
         seen_states = set()
         for i in range(len(states)):

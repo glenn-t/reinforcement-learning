@@ -3,6 +3,7 @@
 import grid_world as gw
 import numpy as np
 import mc
+import dynamic_programming_functions as dp
 
 # Set up
 g = gw.standard_grid()
@@ -32,5 +33,10 @@ for key, value in random_policy.items():
     random_policy[key] = probs
 
 # Policy evaluation using monte carlo
+print("Policy evaluation examples:")
+print("Windy grid world - MC")
 g.windy = 0.5
-mc.print_value_function(mc.get_value(g, fixed_policy, N=1000), g)
+mc.print_value_function(mc.get_value(g, fixed_policy, N=10000, gamma = 0.9), g)
+
+print("Same using dynamic programming")
+dp.print_value_function(dp.get_value(fixed_policy, g, gamma=0.9), g)
