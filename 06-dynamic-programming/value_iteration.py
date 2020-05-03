@@ -28,13 +28,15 @@ dp.print_value_function(V, g)
 dp.print_determinisitic_policy(policy, g)
 
 g = big_grid()
-print("Big grid, gamma = 1")
+g.windy = 0.5
+print("Big windy grid, gamma = 1")
 V, policy = dp.policy_iteration(g, gamma = 1)
 dp.print_value_function(V, g)
 dp.print_determinisitic_policy(policy, g)
 
 g = big_grid_negative()
-print("Big negative grid, gamma = 1")
+g.windy = 0.5
+print("Big windy negative grid, gamma = 1")
 V, policy = dp.policy_iteration(g, gamma = 1)
 dp.print_value_function(V, g)
 dp.print_determinisitic_policy(policy, g)

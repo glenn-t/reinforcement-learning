@@ -1,13 +1,10 @@
 # Glenn Thomas
 # 2020-04-09
 
-import grid_world as gw
+import runpy
 
+print("Run policy iteration")
+runpy.run_path("policy_iteration.py")
 
-print(gw.standard_grid().rewards)
-
-g = gw.negative_grid()
-print(g.rewards)
-print(g.is_terminal((0, 3)))
-print(g.game_over())
-print(g.all_states())
+print("\n\n Run value iteration")
+runpy.run_path("value_iteration.py")
