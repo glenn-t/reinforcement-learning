@@ -41,12 +41,15 @@ def get_value(g, policy, N = 100):
             s = states[i]
             if s not in seen_states:
                 seen_states.add(s)
-                # create state if not yet seen
-                if s not in all_returns.keys():
-                    all_returns[s] = [returns[i]]
-                else:
+                # if state already seen in any episode, then just append to data
+                if s in all_returns:
                     all_returns[s].append(returns[i])
-        
+                else:
+                    # if state not seen in any episode so far, create it
+                    all_returns[s] = [returns[i]]
+
+    ## Note - this could be made more memory efficient by not
+    # storing all_returns, but updating the sample mean each time.
     for s, s_return in all_returns.items():
         all_returns[s] = np.array(s_return).mean()
 
