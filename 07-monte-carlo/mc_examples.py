@@ -31,5 +31,6 @@ for key, value in random_policy.items():
     probs[np.isin(actions, value)] = 1/len(value)
     random_policy[key] = probs
 
-# g.windy = 0.5
+# Policy evaluation using monte carlo
+g.windy = 0.5
 mc.print_value_function(mc.get_value(g, fixed_policy, N=1000), g)

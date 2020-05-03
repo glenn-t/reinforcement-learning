@@ -23,6 +23,7 @@ def print_determinisitic_policy(policy, g):
 
 def get_value(g, policy, N = 100):
     # Gets the value function using monte carlo (using simulation)
+    # (Policy evaluation)
     
     possible_starting_states = g.all_states(include_terminal=False)
 
