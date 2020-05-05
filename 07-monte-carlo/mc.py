@@ -56,3 +56,58 @@ def get_value(g, policy, N = 100, gamma = 0.9):
 
     return(all_returns)
 
+def mc_policy_improvement(g, gamma = 0.9):
+    # Does policy improvement using monte carlo
+    # Uses the Q function instead of V
+    # Does not reset Q after each policy evaluation.
+    # Policy updates after each episode
+    # Uses random starts and action method.
+
+    possible_starting_states = g.all_states(include_terminal=False)
+    init_policy = np.zeros(len(g.actions_array))
+
+    all_returns = {}
+
+    # initialise random policy
+    random_policy = g.actions.copy()
+    for key, value in random_policy.items():
+        probs = np.zeros(len(g.actions_array))
+        probs[np.isin(g.actions_array, value)] = 1/len(value)
+        random_policy[key] = probs
+
+    policy = random_policy.copy()
+
+    while(True):
+
+        # Set random start and action
+        starting_state_ind = np.random.choice(len(possible_starting_states))
+        starting_state = possible_starting_states[starting_state_ind]
+        init_policy = random_policy[starting_state]
+
+        states, actions, returns = g.play_game(policy, gamma = gamma, init_policy = init_policy, init_state = starting_state, return_actions = True)
+        print(states)
+        print(actions)
+        print(returns)
+        
+
+        break
+
+    #     # Use first visit MC
+    #     seen_states = set()
+    #     for i in range(len(states)):
+    #         s = states[i]
+    #         if s not in seen_states:
+    #             seen_states.add(s)
+    #             # if state already seen in any episode, then just append to data
+    #             if s in all_returns:
+    #                 all_returns[s].append(returns[i])
+    #             else:
+    #                 # if state not seen in any episode so far, create it
+    #                 all_returns[s] = [returns[i]]
+
+    # ## Note - this could be made more memory efficient by not
+    # # storing all_returns, but updating the sample mean each time.
+    # for s, s_return in all_returns.items():
+    #     all_returns[s] = np.array(s_return).mean()
+
+    # return(all_returns)

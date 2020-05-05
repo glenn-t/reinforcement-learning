@@ -36,7 +36,10 @@ for key, value in random_policy.items():
 print("Policy evaluation examples:")
 print("Windy grid world - MC")
 g.windy = 0.5
-mc.print_value_function(mc.get_value(g, random_policy, N=10000, gamma = 1), g)
+mc.print_value_function(mc.get_value(g, random_policy, N=10, gamma = 1), g)
 
 print("Same using dynamic programming")
 dp.print_value_function(dp.get_value(random_policy, g, gamma=1), g)
+
+# Policy improvement using monte carlo
+mc.mc_policy_improvement(g)

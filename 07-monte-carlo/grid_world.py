@@ -112,27 +112,56 @@ class Grid:
 
         return(out)
 
-    def play_game(self, policy, gamma = 0.9, max_iter = 1000):
+    def play_game(self, policy, gamma = 0.9, max_iter = 1000, init_policy = None, init_state = None, return_actions = False):
         # Plays an episode of the grid game using the given policy
+        # Returns visited states and observed future discounted rewards for each state
+        # initial_policy: initial policy for explorting starts (array of probabilities)
+        # init_state: initial state for exploring starts
         
         # Set up initial states
         state_log = []
         reward_log = []
+        actions_log = []
 
-        # Log starting state
-        state_log.append(self.current_state())
-        reward_log.append(0.0)
         i = 0
+
+        # initial reward
+        reward = 0
+
+        # Exploring starts (if relevant)
+        if (init_policy is not None) and (init_state is not None):
+            i += 1
+            # Choose action based on initial_policy
+            self.set_state(init_state)
+            action = np.random.choice(self.actions_array, p = init_policy)
+
+            # log state and action, and most recent reward
+            state_log.append(self.current_state())
+            actions_log.append(action)
+            reward_log.append(reward)
+            
+            # Advance
+            reward = self.move(action)
+
+
         # Play game
         while (not self.game_over()) and (i < max_iter):
             i += 1
             # Choose action based on policy
             action = np.random.choice(self.actions_array, p = policy[self.current_state()])
-            reward = self.move(action)
-            
-            # log reward and state
+
+            # log state and action, and most recent reward
             state_log.append(self.current_state())
+            actions_log.append(action)
             reward_log.append(reward)
+            
+            # Advance
+            reward = self.move(action)
+        
+        # Log final state and reward (but no final action)
+        state_log.append(self.current_state())
+        reward_log.append(reward)
+        actions_log.append(None)
 
         if i == max_iter:
             raise ValueError("Game did not finish within max_iter. Bad policy")
@@ -145,8 +174,11 @@ class Grid:
         # Loop in reverse order, but skip last G (leave as 0)
         for i in range(len(reward_log)- 2, -1, -1):
             G[i] = reward_log[i+1] + gamma*G[i+1]
-
-        return((state_log, G))
+        
+        if return_actions:
+            return((state_log, actions_log, G))
+        else:
+            return((state_log, G))
 
     def reset(self):
         self.set_state(self.start)

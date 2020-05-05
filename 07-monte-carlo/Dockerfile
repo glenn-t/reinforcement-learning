@@ -11,6 +11,8 @@ FROM python:3.8.2
 LABEL Name=rl-07 Version=0.0.1
 EXPOSE 3000
 
+RUN pip install ipython
+
 WORKDIR /app
 ADD ./requirements.txt /app
 
