@@ -121,7 +121,7 @@ class Grid:
         # Set up initial states
         state_log = []
         reward_log = []
-        actions_log = []
+        state_action_log = []
 
         i = 0
 
@@ -137,7 +137,7 @@ class Grid:
 
             # log state and action, and most recent reward
             state_log.append(self.current_state())
-            actions_log.append(action)
+            state_action_log.append((self.current_state(), action))
             reward_log.append(reward)
             
             # Advance
@@ -152,7 +152,7 @@ class Grid:
 
             # log state and action, and most recent reward
             state_log.append(self.current_state())
-            actions_log.append(action)
+            state_action_log.append((self.current_state(), action))
             reward_log.append(reward)
             
             # Advance
@@ -161,7 +161,7 @@ class Grid:
         # Log final state and reward (but no final action)
         state_log.append(self.current_state())
         reward_log.append(reward)
-        actions_log.append(None)
+        state_action_log.append((self.current_state(), None))
 
         if i == max_iter:
             raise ValueError("Game did not finish within max_iter. Bad policy")
@@ -176,7 +176,7 @@ class Grid:
             G[i] = reward_log[i+1] + gamma*G[i+1]
         
         if return_actions:
-            return((state_log, actions_log, G))
+            return((state_action_log, G))
         else:
             return((state_log, G))
 

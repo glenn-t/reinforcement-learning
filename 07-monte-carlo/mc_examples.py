@@ -6,7 +6,7 @@ import mc
 import dynamic_programming_functions as dp
 
 # Set up
-g = gw.standard_grid()
+g = gw.negative_grid(step_reward=0)
 
 # Set up policies
 fixed_policy = {
@@ -34,12 +34,21 @@ for key, value in random_policy.items():
 
 # Policy evaluation using monte carlo
 print("Policy evaluation examples:")
-print("Windy grid world - MC")
+print("Windy grid world - MC, step cost = 0")
 g.windy = 0.5
 mc.print_value_function(mc.get_value(g, random_policy, N=10, gamma = 1), g)
 
 print("Same using dynamic programming")
 dp.print_value_function(dp.get_value(random_policy, g, gamma=1), g)
 
+print("Policy improvement examples")
 # Policy improvement using monte carlo
-mc.mc_policy_improvement(g)
+V, policy = mc.mc_policy_improvement(g, gamma = 0.9, N = 3000)
+dp.print_value_function(V, g)
+dp.print_determinisitic_policy(policy, g)
+
+print("Same using dynamic programming")
+V, policy = dp.policy_iteration(g, gamma = 0.9)
+dp.print_value_function(V, g)
+dp.print_determinisitic_policy(policy, g)
+
