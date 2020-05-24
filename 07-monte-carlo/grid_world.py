@@ -1,5 +1,6 @@
 import numpy as np
 import pdb
+import warnings
 
 class Grid:
     def __init__(self, start, blocks, rewards, terminal_states, windy = 0):
@@ -164,7 +165,7 @@ class Grid:
         state_action_log.append((self.current_state(), None))
 
         if i == max_iter:
-            raise ValueError("Game did not finish within max_iter. Bad policy")
+            warnings.warn("Game did not finish within max_iter. Bad policy")
 
         # Calculate return (G)
         # G(t) = r(t+1) + gamma*G(t+1)

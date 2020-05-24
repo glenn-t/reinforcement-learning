@@ -56,19 +56,22 @@ def get_value(g, policy, N = 100, gamma = 0.9):
 
     return(all_returns)
 
-def mc_policy_improvement(g, gamma = 0.9, N = 1000):
+def mc_policy_improvement_es(g, gamma = 0.9, N = 1000):
     # Does policy improvement using monte carlo
     # Uses the Q function instead of V
     # Does not reset Q after each policy evaluation.
     # Policy updates after each episode
-    # Uses random starts and action method.
+    # Uses random starts and action method (exploring starts)
 
     possible_starting_states = g.all_states(include_terminal=False)
     init_policy = np.zeros(len(g.actions_array))
 
     # Logs samples of Q
     all_returns = {}
-    Q = {} # technically this should be initialised arbitrarily, but I workaround that.
+    Q = {} 
+    for s, value in g.actions.items():
+        for a in value:
+            Q[(s, a)] = 0
 
     # initialise random policy
     random_policy = g.actions.copy()
@@ -126,13 +129,102 @@ def mc_policy_improvement(g, gamma = 0.9, N = 1000):
         # print value function of starting position, for every 100th itera
         if (n_iter % 100) == 0:
             action = g.actions_array[np.where(policy[g.start])[0]][0]
-            print(Q[(g.start, action)])
+            print(str(n_iter) + " " + str(np.round(Q[(g.start, action)], 4)))
 
     # Get value function
     V = {}
     for s in policy:
         # will fail if any still has determinisitic value function
         action = g.actions_array[np.where(policy[s] == 1.0)][0]
+        V[s] = Q[(s,action)]
+
+
+    return((V, policy))
+
+def eps(N):
+    return(0.995**N)
+
+def mc_policy_improvement_eps_soft(g, gamma = 0.9, N = 1000, eps_function = eps):
+    # Does policy improvement using monte carlo
+    # Uses the Q function instead of V
+    # Does not reset Q after each policy evaluation.
+    # Policy updates after each episode
+    # Instead of using exploring starts, uses epsilon softs
+
+    # Logs samples of Q
+    all_returns = {}
+    # I used to avoid initialising, but now I do. 
+    # If not initiallised, doesn't try to update states with no entries in Q
+    Q = {} 
+    for s, value in g.actions.items():
+        for a in value:
+            Q[(s, a)] = 0
+
+    # initialise random policy
+    random_policy = g.actions.copy()
+    for key, value in random_policy.items():
+        probs = np.zeros(len(g.actions_array))
+        probs[np.isin(g.actions_array, value)] = 1/len(value)
+        random_policy[key] = probs
+
+    policy = random_policy.copy()
+
+    for n_iter in range(1, N + 1):
+        # play game
+        g.reset()
+        state_action_log, returns = g.play_game(policy, gamma = gamma, return_actions = True)
+
+        ## Add state_action_log to dataset and update Q
+        # Use first visit MC
+        seen_states = set()
+        for i in range(len(state_action_log)):
+            s_a = state_action_log[i]
+            if s_a not in seen_states:
+                seen_states.add(s_a)
+                # if state already seen in any episode, then just append to data
+                if s_a in all_returns:
+                    all_returns[s_a].append(returns[i])
+                else:
+                    # if state not seen in any episode so far, create it
+                    all_returns[s_a] = [returns[i]]
+
+                # Update Q
+                Q[s_a] = np.mean(all_returns[s_a])
+
+        ## Update policy
+        # TODO - this part could be optimised to remove the double for loop
+        for s in policy:
+            # Find all entries in Q with state=s
+            new_action = None
+            max_value = -np.Inf
+            for key, value in Q.items():
+                if key[0] == s and value > max_value:
+                    new_action = key[1]
+                    max_value = value
+
+            # Leave as random policy if that state never visited in any episode
+            # If state visited in any episode, then update
+            if new_action is not None:
+                # Get possible actins
+                possible_actions_ind = np.isin(g.actions_array, g.actions[s])
+                # first put in the zero
+                policy[s][np.logical_not(possible_actions_ind)] = 0.0 
+                 # Now add epsilon soft probabilities
+                policy[s][possible_actions_ind] = eps_function(n_iter)/len(g.actions[s])
+                # Now set main action
+                policy[s][g.actions_array == new_action] = 1.0 - eps_function(n_iter) + eps_function(n_iter)/len(g.actions[s])
+
+        # Could track the value function of the starting position
+        # print value function of starting position, for every 100th itera
+        if (n_iter % 100) == 0:
+            action = g.actions_array[np.where(policy[g.start])[0]][0]
+            print(str(n_iter) + " " + str(np.round(Q[(g.start, action)], 4)))
+
+    # Get value function
+    V = {}
+    for s in policy:
+        # will fail if any still has determinisitic value function
+        action = g.actions_array[np.where(policy[s] == max(policy[s]))][0]
         V[s] = Q[(s,action)]
 
 
