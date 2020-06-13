@@ -50,3 +50,21 @@ def td0(g, policy, N = 10, gamma = 0.9, alpha = 0.1, epsilon = 0.01):
         #     dp.print_value_function(V, g)
 
     return(V)
+
+## SARSA
+def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1):
+    
+    # Initialise Q
+    Q = {}
+    for s, possible_actions in g.actions.items():
+        for a in possible_actions:
+            Q[(s, a)] = 0.0
+
+    # Set terminal Q = 0
+    terminal_states = set(g.all_states(include_terminal=True)) - set(g.all_states(include_terminal=False))
+    for s in terminal_states:
+        Q[(s, None)] = 0.0
+
+    print(Q)
+
+    # For t = 1..N
