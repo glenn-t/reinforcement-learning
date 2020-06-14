@@ -54,7 +54,7 @@ def td0(g, policy, N = 10, gamma = 0.9, alpha = 0.1, epsilon = 0.01):
 ## SARSA
 def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1):
     
-    # Initialise Q
+    # Initialise Q (arbitrarily)
     Q = {}
     for s, possible_actions in g.actions.items():
         for a in possible_actions:
@@ -65,6 +65,72 @@ def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1):
     for s in terminal_states:
         Q[(s, None)] = 0.0
 
-    print(Q)
+    for n in range(1, (N+1)):
+        print(n)
+        g.reset()
+        s1 = g.current_state()
+        a1 = epsilon_greedy_action(g=g, Q=Q, s=s1, epsilon=epsilon_function(n))
+        
+        game_over = False
+        while not game_over:
+            r = g.move(a1)
+            s2 = g.current_state()
 
-    # For t = 1..N
+            game_over = g.game_over()
+            if game_over:
+                a2 = None
+            else:
+                a2 = epsilon_greedy_action(g=g, Q=Q, s=s2, epsilon=epsilon_function(n))
+            
+            #print((s1, a1, r, s2, a2))
+
+            # Update
+            Q[(s1, a1)] = Q[(s1, a1)] + alpha*(r + gamma * Q[(s2, a2)] - Q[(s1, a1)])
+            s1 = s2
+            a1 = a2
+
+            
+        
+    # Get policy from Q function
+    policy = {}
+    value_f = {}
+    for s in g.all_states(include_terminal=False):
+        for a in g.actions[s]:
+            value = -np.Inf
+            if Q[(s, a)] > value:
+                value = value
+                action = a
+        policy[s] = action
+        value_f[s] = value
+    
+    return(policy, value_f)
+
+## SARSA helpers
+def epsilon_greedy_action(g, Q, s, epsilon):
+    p = np.random.sample()
+    if p < epsilon:
+        # random action
+        action = np.random.choice(g.actions[s])
+    else:
+        # greedy action
+        for a in g.actions[s]:
+            value = -np.Inf
+            if Q[(s, a)] > value:
+                value = value
+                action = a
+    return(action)
+
+# Prints value function
+def print_value_function(V, g):
+    out = np.zeros((g.height, g.width))
+    for key, value in V.items():
+        out[key[0], key[1]] = value
+    print(np.round(out, 2))
+    return(out)
+
+# Print deterministic policy
+def print_determinisitic_policy(policy, g):
+    out = np.full(shape = (g.height, g.width), fill_value = " ")
+    for key, value in policy.items():
+        out[key[0], key[1]] = value
+    print(out)

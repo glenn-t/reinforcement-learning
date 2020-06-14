@@ -44,10 +44,13 @@ print("Same using dynamic programming")
 dp.print_value_function(dp.get_value(fixed_policy, g, gamma=0.9), g)
 
 print("Policy improvement examples")
+
 def eps(N):
     return(0.995**N)
 
-td.sarsa(g=g, epsilon_function=eps, N = 10, gamma = 0.9, alpha=0.1)
+policy, value = td.sarsa(g=g, epsilon_function=eps, N = 10, gamma = 0.9, alpha=0.1)
+td.print_value_function(value, g)
+td.print_determinisitic_policy(policy, g)
 
 # # Policy improvement using monte carlo
 # print("Exploring starts method")
