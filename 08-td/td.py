@@ -60,7 +60,7 @@ def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1, max_game_length =
     Q = {}
     for s, possible_actions in g.actions.items():
         for a in possible_actions:
-            Q[(s, a)] = 0.0
+            Q[(s, a)] = 0.5
 
     # Set terminal Q = 0
     terminal_states = set(g.all_states(include_terminal=True)) - set(g.all_states(include_terminal=False))
@@ -92,9 +92,14 @@ def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1, max_game_length =
             s1 = s2
             a1 = a2 
         
+        # if n % 1 == 0:
+        #     policy, value_f = get_policy_and_value_function(Q, g)
+        #     print(value_f[g.start])
+        #     print_determinisitic_policy(policy, g)
+        
     # Get policy from Q function
     policy, value_f = get_policy_and_value_function(Q, g)
-    
+
     return(policy, value_f)
 
 ## SARSA helpers
@@ -105,10 +110,10 @@ def epsilon_greedy_action(g, Q, s, epsilon):
         action = np.random.choice(g.actions[s])
     else:
         # greedy action
+        value = -np.Inf
         for a in g.actions[s]:
-            value = -np.Inf
             if Q[(s, a)] > value:
-                value = value
+                value = Q[(s, a)]
                 action = a
     return(action)
 
