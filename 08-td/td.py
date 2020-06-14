@@ -52,8 +52,10 @@ def td0(g, policy, N = 10, gamma = 0.9, alpha = 0.1, epsilon = 0.01):
     return(V)
 
 ## SARSA
-def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1):
-    
+def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1, max_game_length = 100):
+    # N = number of episodes
+    # max_game_length = stops game after so many moves. Helps prevent bad policies slowing down the programme.
+
     # Initialise Q (arbitrarily)
     Q = {}
     for s, possible_actions in g.actions.items():
@@ -66,13 +68,14 @@ def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1):
         Q[(s, None)] = 0.0
 
     for n in range(1, (N+1)):
-        print(n)
         g.reset()
         s1 = g.current_state()
         a1 = epsilon_greedy_action(g=g, Q=Q, s=s1, epsilon=epsilon_function(n))
         
         game_over = False
-        while not game_over:
+        i = 0
+        while (not game_over) and (i < max_game_length):
+            i += 1
             r = g.move(a1)
             s2 = g.current_state()
 
@@ -87,21 +90,10 @@ def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1):
             # Update
             Q[(s1, a1)] = Q[(s1, a1)] + alpha*(r + gamma * Q[(s2, a2)] - Q[(s1, a1)])
             s1 = s2
-            a1 = a2
-
-            
+            a1 = a2 
         
     # Get policy from Q function
-    policy = {}
-    value_f = {}
-    for s in g.all_states(include_terminal=False):
-        for a in g.actions[s]:
-            value = -np.Inf
-            if Q[(s, a)] > value:
-                value = value
-                action = a
-        policy[s] = action
-        value_f[s] = value
+    policy, value_f = get_policy_and_value_function(Q, g)
     
     return(policy, value_f)
 
@@ -119,6 +111,19 @@ def epsilon_greedy_action(g, Q, s, epsilon):
                 value = value
                 action = a
     return(action)
+
+def get_policy_and_value_function(Q, g):
+    policy = {}
+    value_f = {}
+    for s in g.all_states(include_terminal=False):
+        value = -np.Inf
+        for a in g.actions[s]:
+            if Q[(s, a)] > value:
+                value = Q[(s, a)]
+                action = a
+        policy[s] = action
+        value_f[s] = value
+    return(policy, value_f)
 
 # Prints value function
 def print_value_function(V, g):

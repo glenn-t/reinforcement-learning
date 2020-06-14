@@ -9,7 +9,7 @@ import dynamic_programming_functions as dp
 
 # Set up
 g = gw.negative_grid(step_reward=0)
-g.windy = 0
+g.windy = 0.5
 
 # Set up policies
 fixed_policy = {
@@ -46,28 +46,15 @@ dp.print_value_function(dp.get_value(fixed_policy, g, gamma=0.9), g)
 print("Policy improvement examples")
 
 def eps(N):
+    # options 1/t, c/t, c/t^(a)
     return(0.995**N)
 
-policy, value = td.sarsa(g=g, epsilon_function=eps, N = 10, gamma = 0.9, alpha=0.1)
+policy, value = td.sarsa(g=g, epsilon_function=eps, N = 10000, gamma = 0.9, alpha=0.1)
 td.print_value_function(value, g)
 td.print_determinisitic_policy(policy, g)
 
-# # Policy improvement using monte carlo
-# print("Exploring starts method")
-# V, policy = mc.mc_policy_improvement_es(g, gamma = 0.9, N = 1000)
-# dp.print_value_function(V, g)
-# dp.print_determinisitic_policy(policy, g)
-
-# print("Epsilon soft method")
-# def eps(N):
-#     return(0.995**N)
-
-# V, policy = mc.mc_policy_improvement_eps_soft(g, gamma = 0.9, N = 1000, eps_function = eps)
-# dp.print_value_function(V, g)
-# dp.print_determinisitic_policy(policy, g)
-
-# print("Same using dynamic programming")
-# V, policy = dp.policy_iteration(g, gamma = 0.9)
-# dp.print_value_function(V, g)
-# dp.print_determinisitic_policy(policy, g)
+print("Same using dynamic programming")
+V, policy = dp.policy_iteration(g, gamma = 0.9)
+dp.print_value_function(V, g)
+dp.print_determinisitic_policy(policy, g)
 
