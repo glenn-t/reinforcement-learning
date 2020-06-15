@@ -52,7 +52,10 @@ def eps(N):
 
 # There is the option to have decaying alpha, but would need to decay
 # independantly for each element of Q, so need to track the count for each
-# element of Q.
+# element of Q. This is not implemented yet.
+# Some options:
+# alpha(s,a) = alpha0/count(s,a)
+# alpha(s,a) = alpha0/(k + m*count(s,a))
 
 policy, value = td.sarsa(g=g, epsilon_function=eps, N = 100, gamma = 0.9, alpha=0.1)
 td.print_value_function(value, g)
