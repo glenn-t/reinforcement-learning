@@ -60,7 +60,7 @@ def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1, max_game_length =
     Q = {}
     for s, possible_actions in g.actions.items():
         for a in possible_actions:
-            Q[(s, a)] = 0.5
+            Q[(s, a)] = 0.0
 
     # Set terminal Q = 0
     terminal_states = set(g.all_states(include_terminal=True)) - set(g.all_states(include_terminal=False))
@@ -101,6 +101,85 @@ def sarsa(g, epsilon_function, N = 10, gamma = 0.9, alpha=0.1, max_game_length =
     policy, value_f = get_policy_and_value_function(Q, g)
 
     return(policy, value_f)
+
+def qlearning(g, epsilon_function, alpha_function, N = 10, gamma = 0.9, max_game_length = 100):
+    # Similar to qlearning, except does not use a learning rate, but tracks overall average.
+    # This is equivalent to 1/N decreasing learning rate.
+
+    # N = number of episodes
+    # max_game_length = stops game after so many moves. Helps prevent bad policies slowing down the programme.
+    # epsilon_function = function of episode count
+    # alpha_function = function of count(s,a) (number of times in that state-action combination)
+
+    # N = number of episodes
+    # max_game_length = stops game after so many moves. Helps prevent bad policies slowing down the programme.
+
+    # Initialise Q (arbitrarily)
+    Q = {}
+    for s, possible_actions in g.actions.items():
+        for a in possible_actions:
+            Q[(s, a)] = 0.0
+
+    # Set terminal Q = 0
+    terminal_states = set(g.all_states(include_terminal=True)) - set(g.all_states(include_terminal=False))
+    for s in terminal_states:
+        Q[(s, None)] = 0.0
+
+    # Initialise counts
+    Q_counts = Q.copy()
+    for key in Q_counts:
+        Q_counts[key] = 1
+
+    # Create vector of deltas - to keep track of convergence
+    deltas = np.zeros(N)
+
+    for n in range(1, (N+1)):
+        biggest_change = 0.0
+        g.reset()
+        s1 = g.current_state()
+        
+        game_over = False
+        i = 0
+        while (not game_over) and (i < max_game_length):
+            # Choose action: could take a random action here if desired
+            a1 = epsilon_greedy_action(g=g, Q=Q, s=s1, epsilon=epsilon_function(n))
+
+            i += 1
+            r = g.move(a1)
+            s2 = g.current_state()
+
+            game_over = g.game_over()
+
+            # Compute max{a'}[Q(s', a')]
+            if game_over:
+                a2 = None
+            else:
+                # Should be greedy, so set epsilon to 0
+                a2 = epsilon_greedy_action(g=g, Q=Q, s=s2, epsilon=0)
+
+            # Update
+            Q_counts[(s1, a1)] = Q_counts[(s1, a1)] + 1
+            alpha = alpha_function(Q_counts[(s1, a1)])
+            qnew = Q[(s1, a1)] + alpha*(r + gamma * Q[(s2, a2)] - Q[(s1, a1)])
+            # track change
+            biggest_change = max(biggest_change, np.abs(qnew - Q[(s1, a1)]))
+            Q[(s1, a1)] = qnew
+
+
+            s1 = s2
+        
+        # At the end of each episode, log biggest change
+        deltas[n-1] = biggest_change
+
+        # if n % 1 == 0:
+        #     policy, value_f = get_policy_and_value_function(Q, g)
+        #     print(value_f[g.start])
+        #     print_determinisitic_policy(policy, g)
+        
+    # Get policy from Q function
+    policy, value_f = get_policy_and_value_function(Q, g)
+
+    return(policy, value_f, deltas)
 
 ## SARSA helpers
 def epsilon_greedy_action(g, Q, s, epsilon):

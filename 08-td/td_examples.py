@@ -6,6 +6,7 @@ import grid_world as gw
 import numpy as np
 import td
 import dynamic_programming_functions as dp
+import matplotlib.pyplot as plt
 
 # Set up
 g = gw.negative_grid(step_reward=-0.1)
@@ -57,12 +58,38 @@ def eps(N):
 # alpha(s,a) = alpha0/count(s,a)
 # alpha(s,a) = alpha0/(k + m*count(s,a))
 
-policy, value = td.sarsa(g=g, epsilon_function=eps, N = 100, gamma = 0.9, alpha=0.1)
+print("SARSA")
+policy, value = td.sarsa(g=g, epsilon_function=eps, N = 1000, gamma = 1, alpha=0.1)
 td.print_value_function(value, g)
 td.print_determinisitic_policy(policy, g)
+
+def alpha(N):
+    # alpha(s,a) = alpha0/count(s,a)
+    # alpha(s,a) = alpha0/(k + m*count(s,a))
+    # 1/N implements the average (with a hard coded initial value)
+    # For Q to converge, need this sum of alpha = inf and sum of alpha^2 < inf
+    return(1/N)
+
+print("Q Learning, with epsilon decay")
+policy, value, deltas = td.qlearning(g=g, epsilon_function=eps, alpha_function = alpha, N = 3000, gamma = 0.9)
+td.print_value_function(value, g)
+td.print_determinisitic_policy(policy, g)
+plt.figure()
+plt.plot(deltas)
+plt.savefig("output/qlearning_eplison_greedy.png")
+
+print("Q Learning, with random action")
+def eps_1(n):
+    return(1)
+
+policy, value, deltas = td.qlearning(g=g, epsilon_function=eps_1, alpha_function = alpha, N = 3000, gamma = 0.9)
+td.print_value_function(value, g)
+td.print_determinisitic_policy(policy, g)
+plt.figure()
+plt.plot(deltas)
+plt.savefig("output/qlearning_random.png")
 
 print("Same using dynamic programming")
 V, policy = dp.policy_iteration(g, gamma = 0.9)
 dp.print_value_function(V, g)
 dp.print_determinisitic_policy(policy, g)
-
