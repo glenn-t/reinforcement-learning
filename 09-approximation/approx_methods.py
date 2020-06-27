@@ -49,7 +49,7 @@ def mc_predict(g, policy, alpha_function, N = 1000, gamma = 0.9):
                 theta_old = theta
                 # Effectively this is just online training of the model
                 # Alpha should really be selected use cross-validation etc.
-                # Could retrain using all the data.
+                # Could retrain using all the data to get the weights right (i.e. minimise RMSE)
                 theta = theta_old + alpha_function(n)*(G[i] - theta_old.dot(X))*X
 
     # Generate value function
