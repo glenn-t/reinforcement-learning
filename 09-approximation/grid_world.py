@@ -176,8 +176,7 @@ class Grid:
         for i in range(len(reward_log)- 2, -1, -1):
             G[i] = reward_log[i+1] + gamma*G[i+1]
         
-        # Ignore terminal state
-        return((state_log[:-1], state_action_log[:-1], G[:-1], reward_log[1:]))
+        return((state_log, state_action_log, G, reward_log))
 
     def reset(self):
         self.set_state(self.start)

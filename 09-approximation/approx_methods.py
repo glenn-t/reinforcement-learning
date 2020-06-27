@@ -1,30 +1,15 @@
 import numpy as np
+import td
+import Model
 
 ## Approximation methods
-
-def generate_features(state):
-    # Generate an X vector of features for a input state
-
-    # Generate using taylor polynomial
-    out = np.array([1.0, state[0], state[1], state[0]*state[1], state[0]**2, state[1]**2, state[0]*state[1]**2, state[0]**2*state[1], state[0]**3, state[1]**3, state[0]**2*state[1]**2])
-    # Just use 4 variables (reducing from 9 states to learn, to 4 parameters to learn).
-    out = out[0:4]
-
-    # If wanting to use all states - perfect model - one feature for each state
-    # out = np.zeros(12)
-    # cell_id = 0
-    # for i in range(3):
-    #     for j in range(4):
-    #         out[cell_id] = state == (i,j)
-    #         cell_id = cell_id + 1
-    return(out)
 
 def mc_predict(g, policy, alpha_function, N = 1000, gamma = 0.9):
     # Gets the value function using monte carlo (using simulation)
     # Tracks state space using linear model
     
     # Initialise theta (linear weights)
-    theta = np.zeros(len(generate_features(g.current_state())))
+    m = Model.Model()
     # theta = np.random.normal(size = len(generate_features(g.current_state())))
 
     possible_starting_states = g.all_states(include_terminal=False)
@@ -39,25 +24,60 @@ def mc_predict(g, policy, alpha_function, N = 1000, gamma = 0.9):
         state_log, state_action_log, G, reward_log = g.play_game(policy, gamma = gamma)
         # Use first visit MC
         seen_states = set()
-        for i in range(len(state_log)):
+        for i in range(len(state_log) - 1):
             s = state_log[i]
             if s not in seen_states:
                 seen_states.add(s)
-                # Create features
-                X = generate_features(s)
-                # Update model
-                theta_old = theta
                 # Effectively this is just online training of the model
                 # Alpha should really be selected use cross-validation etc.
                 # Could retrain using all the data to get the weights right (i.e. minimise RMSE)
-                theta = theta_old + alpha_function(n)*(G[i] - theta_old.dot(X))*X
+                m.theta = m.theta + alpha_function(n)*(G[i] - m.predict(s))*m.grad(s)
 
     # Generate value function
     V = {}
     for s in possible_starting_states:
-        X = generate_features(s)
-        V[s] = theta.dot(X)
+        V[s] = m.predict(s)
 
-    print("Theta: " + str(theta))
+    print("Theta: " + str(m.theta))
+
+    return(V)
+
+### TD(0) with approximation (semi-gradient method)
+# It is semi gradient because the target uses the model, so not a true gradient.
+
+def td0_predict(g, policy, alpha_function, N = 10, gamma = 0.9, epsilon = 0.01):
+
+    # Use epsilon-soft
+    policy = td.create_epsilon_soft_policy(policy, g, eps = epsilon)
+
+    # Initialise theta (linear weights)
+    m = Model.Model()
+
+    for n in range(1, N + 1):
+        # play game
+        g.reset()
+        state_log, state_action_log, G, reward_log = g.play_game(policy, gamma = gamma)
+
+        for t in range(len(state_log) - 1):
+            s = state_log[t]
+            s2 = state_log[t+1]
+            r = reward_log[t+1]
+            
+            if (t + 1) == (len(state_log) - 1):
+                # The next state is the last state
+                target = r
+            else:
+                # Generate target in normal way
+                target = r + gamma*m.predict(s2)
+
+            # grad(V_hat) = x (final multiplier). Refers to state s.
+            m.theta = m.theta + alpha_function(n)*(target - m.predict(s))*m.grad(s)
+
+    # Generate value function
+    V = {}
+    for s in g.all_states(include_terminal = False):
+        V[s] = m.predict(s)
+
+    print("Theta: " + str(m.theta))
 
     return(V)
