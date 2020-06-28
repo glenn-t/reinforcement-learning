@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # Set up
 GAMMA = 0.9
 g = gw.negative_grid(step_reward=0)
-g.windy = 0.1
+g.windy = 0.2
 
 # Set up policies
 fixed_policy = {
@@ -45,14 +45,15 @@ def alpha(n):
     # If this is decaying, it can lead to extreme results
     # Seems more stable if using a contant, or use a low initial learning rate
     # return(0.05/np.sqrt(n))
-    return(0.001)
+    return(0.01)
+    # return(1/n)
 
-dp.print_value_function(approx_methods.mc_predict(g, fixed_policy, alpha, N=10000, gamma = GAMMA), g)
+dp.print_value_function(approx_methods.mc_predict(g, fixed_policy, alpha, N=1000, gamma = GAMMA), g)
 
 print("Windy grid world - TD(0) with approx, step cost = 0")
 # TD(0) does not fit so well in the off-policy regions 
 # as it does not explore them as much as MC (using exploring starts)
-dp.print_value_function(approx_methods.td0_predict(g, fixed_policy, alpha, N=10000, gamma = GAMMA, epsilon = 0.01), g)
+dp.print_value_function(approx_methods.td0_predict(g, fixed_policy, alpha, N=1000, gamma = GAMMA, epsilon = 0.1), g)
 
 print("Same using dynamic programming")
 dp.print_value_function(dp.get_value(fixed_policy, g, gamma=GAMMA), g)

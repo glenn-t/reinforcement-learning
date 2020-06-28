@@ -1,4 +1,4 @@
-# Example from the course
+# Linear model
 
 import numpy as np
 
@@ -28,4 +28,9 @@ class Model:
     return self.theta.dot(x)
 
   def grad(self, s):
-    return self.generate_features(s)
+    out = self.generate_features(s)
+    # normalise direction
+    size = np.sum(np.power(out,2))
+    # Changing theta by out will increase the V_hat(s) by 1
+    out = out/size
+    return out

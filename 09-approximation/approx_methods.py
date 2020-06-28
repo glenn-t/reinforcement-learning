@@ -1,6 +1,7 @@
 import numpy as np
 import td
 import Model
+import dynamic_programming_functions as dp
 
 ## Approximation methods
 
