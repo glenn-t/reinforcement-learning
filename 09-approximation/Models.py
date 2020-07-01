@@ -46,6 +46,8 @@ class Model_Q:
   
   def generate_features(self, s, a):
     # Generate an X vector of features for a input state
+    # Basically have one set of coefficients per action
+    # One-hot encode action
 
     # 4 features with interaction on action
     features = np.zeros(4*len(self.actions_array))
