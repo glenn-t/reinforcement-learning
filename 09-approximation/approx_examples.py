@@ -6,7 +6,6 @@ import grid_world as gw
 import numpy as np
 import approx_methods
 import dynamic_programming_functions as dp
-import matplotlib.pyplot as plt
 import td
 
 # Reimport functions to aid in interactive development
@@ -15,8 +14,8 @@ importlib.reload(approx_methods)
 
 # Set up
 GAMMA = 0.9
-g = gw.negative_grid(step_reward=0)
-g.windy = 0.2
+g = gw.negative_grid(step_reward=-0.05)
+g.windy = 0.5
 
 # Set up policies
 fixed_policy = {
@@ -67,7 +66,7 @@ dp.print_value_function(dp.get_value(fixed_policy, g, gamma=GAMMA), g)
 
 print("SARSA")
 
-policy, value = approx_methods.sarsa(g=g, epsilon_function=eps, alpha_function = alpha, N = 1000, gamma = GAMMA)
+policy, value = approx_methods.sarsa(g=g, epsilon_function=eps, alpha_function = alpha, N = 10000, gamma = GAMMA)
 td.print_value_function(value, g)
 td.print_determinisitic_policy(policy, g)
 

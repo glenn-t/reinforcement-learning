@@ -36,13 +36,11 @@ class Model_V:
     return out
 
 # Linear model for Q(a,a)
-
-import numpy as np
-
 class Model_Q:
   def __init__(self, g):
+    self.n_features = 4
     self.actions_array = g.actions_array
-    self.theta = np.zeros(4*len(self.actions_array))
+    self.theta = np.zeros(self.n_features*len(self.actions_array))
   
   def generate_features(self, s, a):
     # Generate an X vector of features for a input state
@@ -50,14 +48,15 @@ class Model_Q:
     # One-hot encode action
 
     # 4 features with interaction on action
-    features = np.zeros(4*len(self.actions_array))
+    features = np.zeros(self.n_features*len(self.actions_array))
 
     # Base features
     base_features = np.array([1, s[0], s[1], s[0]*s[1]])
+    base_features = base_features[0:self.n_features]
 
     for i in range(len(self.actions_array)):
       hot_encoded_action = np.int((a == self.actions_array[i]))
-      features[(4*i):(4*i + 4)] = base_features*hot_encoded_action
+      features[(self.n_features*i):(self.n_features*i + self.n_features)] = base_features*hot_encoded_action
 
     return features
 

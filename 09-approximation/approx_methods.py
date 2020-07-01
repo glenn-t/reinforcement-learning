@@ -1,9 +1,12 @@
 import numpy as np
 import td
 import Models
-import dynamic_programming_functions as dp
 
 ## Approximation methods
+
+# TODO:
+    # Add logging of deltas (max change in each iteration)
+    # Add average reward
 
 def mc_predict(g, policy, alpha_function, N = 1000, gamma = 0.9):
     # Gets the value function using monte carlo (using simulation)
