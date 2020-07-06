@@ -1,0 +1,9 @@
+version: '2.1'
+
+services:
+  python:
+    image: rl-10
+    build: .
+    volumes:
+      - ./output:/app/output
+    stdin_open: true
