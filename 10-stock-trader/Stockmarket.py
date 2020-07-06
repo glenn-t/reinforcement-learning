@@ -75,7 +75,7 @@ class StockMarket:
            while bought:
                bought = False
                for i, a in enumerate(action):
-                   if (a == "BUY") and ( self.prices[i] <= self.cash):
+                   if (a == "BUY") and (self.prices[i] <= self.cash):
                        self.holdings[i] += 1
                        self.cash -= self.prices[i]
                        bought = True
