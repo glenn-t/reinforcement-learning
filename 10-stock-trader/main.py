@@ -7,17 +7,27 @@ Created on Mon Jul  6 21:59:54 2020
 """
 
 import Stockmarket
-import numpy as np
+import agents
 
 INITIAL_INVESTMENT = 20000.0
 
-train_env = Stockmarket.StockMarket("test", INITIAL_INVESTMENT)
-done = False
-state = train_env.reset()
-while not done:
-    # Random agent
-    action = np.random.choice(["BUY", "SELL", "HOLD"], size = 3).tolist()
-    next_state, reward, done, info = train_env.step(action)
-    state = next_state
+def play_game(env, agent, train_flag = True):
+    
+    done = False
+    state = env.reset()
+    while not done:
+        action = agent.get_action(state)
+        next_state, reward, done, info = env.step(action)
+        if train_flag:
+            agent.train(state, action, reward, next_state, done)
+        state = next_state
 
-print(info)
+    # Return final portfolio value
+    return(info['portfolio_value'])
+
+train_env = Stockmarket.StockMarket("test", INITIAL_INVESTMENT)
+random_agent = agents.RandomAgent()
+
+
+
+print(play_game(train_env, random_agent))

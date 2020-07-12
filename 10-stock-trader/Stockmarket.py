@@ -8,7 +8,7 @@ Created on Mon Jul  6 21:56:27 2020
 
 import pandas as pd
 import numpy as np
-
+import pdb
 
 class StockMarket:
     
