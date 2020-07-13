@@ -20,6 +20,7 @@ class StockMarket:
         
         # Load data
         self.data = pd.read_csv("aapl_msi_sbux.csv")
+        self.n_stocks = self.data.shape[1]
         
         # Split into test/train. There is 1 day overlap (at the end of test)
         split_point = self.data.shape[0]//2
