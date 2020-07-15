@@ -16,6 +16,7 @@ ADD ./requirements.txt /app
 RUN python3 -m pip install -r requirements.txt
 
 ADD *.py /app/
+ADD aapl_msi_sbux.csv /app/
 CMD ["python3", "main.py"]
 
 # CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
