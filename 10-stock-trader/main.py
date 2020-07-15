@@ -30,7 +30,7 @@ print(play_game(train_env, random_agent))
 
 # Train
 print("Training [LinearAgent, Random]")
-N = 50
+N = 50 # Should really do about 200
 val = np.zeros((2, N))
 for i in range(N):
     val[0, i] = play_game(train_env, linear_agent)
@@ -42,7 +42,7 @@ print(np.mean(val, axis = 1))
 
 # Test
 print("Testing [LinearAgent, Random]")
-N_test = 25
+N_test = 25 # Should really do about 100
 test_env = Stockmarket.StockMarket("test", INITIAL_INVESTMENT)
 val_test = np.zeros((2, N_test))
 for i in range(N_test):
