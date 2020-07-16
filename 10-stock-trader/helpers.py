@@ -6,8 +6,9 @@ Created on Wed Jul 15 21:23:19 2020
 @author: glenn
 """
 
-def play_game(env, agent, train_flag = True):
-    
+
+def play_game(env, agent, train_flag=True):
+
     done = False
     state = env.reset()
     while not done:
